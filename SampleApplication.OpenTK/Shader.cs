@@ -87,6 +87,12 @@ namespace SampleApplication.OpenTK
             GL.Uniform3(loc, ref vec);
         }
 
+        public void SetVec4(string name, Vector4 vec)
+        {
+            int loc = GL.GetUniformLocation(Handle, name);
+            GL.Uniform4(loc, ref vec);
+        }
+
         public void SetFloat(string name, float val)
         {
             int loc = GL.GetUniformLocation(Handle, name);

@@ -9,7 +9,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using Vector2 = System.Numerics.Vector2;
+using Vector2 = OpenTK.Mathematics.Vector2;
 
 namespace SampleApplication.OpenTK;
 
@@ -39,8 +39,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     private bool ShowDockingDemo = true;
 
-    Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line;
-
+    Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
+     //Grid grid; //Shader gridShader;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -54,8 +54,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         SetupShaders();
         SetupCamera();
-        line = new Line();
-
+        SetupGL();
+        SetupObjects();
     }
 
     protected override void Dispose(bool disposing)
@@ -75,10 +75,43 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         Controller.Update((float)args.Time);
     }
+
+    protected void SetupObjects()
+    {
+        line = new Line();
+        cylinder = new Cylinder();
+        //grid = new Grid();
+    }
     protected void SetupShaders()
     {
         // instead of using path "Shaders/ShaderVerts.glsl and using option "copy to output directory" the path is given directly to the source of shaders (every change gonna be instant)
-        shader = new Shader("../../../Shaders/ShaderVert.glsl", "../../../Shaders/ShaderFrag.glsl");
+        //shader = new Shader("../../../Shaders/ShaderVert.glsl", "../../../Shaders/ShaderFrag.glsl");
+
+        //gridShader = new Shader("../../../Shaders/GridShaderVert.glsl", "../../../Shaders/GridShaderFrag.glsl");
+
+        //gridShader.Use();
+        //gridShader.SetVec4("backgroundColor", new Vector4(0.66f, 0.66f, 0.66f, 1f));
+        //gridShader.SetVec4("gridColor", new Vector4(1f, 0f, 0f, 1f));
+
+
+        phongShader = new Shader("../../../Shaders/ShaderPhongVert.glsl", "../../../Shaders/ShaderPhongFrag.glsl");
+        lightColor = new Vector3(1f, 1f, 1f);
+        lightPos = new Vector3(-10, -20, 20);
+
+        //phong shader light position and color are setup once and used globally for diffrent objects.
+        //Althought viewPos is changed for all objects in every frame and objectColor every frame for every object using phong.
+        phongShader.Use();
+        phongShader.SetVec3("lightPos", lightPos);            //uniform vec3 lightPos;
+        phongShader.SetVec3("lightColor", lightColor);        //uniform vec3 lightColor;
+
+
+        // this needs to be set up in every frame while rendering specific object
+        //shader.SetMatrix4("model", ModelMatrix);
+        //shader.SetMatrix4("view", View);
+        //shader.SetMatrix4("projection", Perspective);
+        //shader.SetVec3("objectColor", ObjectColor);  //uniform vec3 objectColor;
+        //shader.SetVec3("viewPos", cameraPos);
+        
     }
 
     protected void SetupCamera()
@@ -89,14 +122,21 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         camera.UpdateProjectionMatrix((float)ClientSize.X, (float)ClientSize.Y, perspectiveSettings.fov, perspectiveSettings.n, perspectiveSettings.f);
     }
 
+    protected void SetupGL()
+    {
+        GL.Enable(EnableCap.CullFace);
+        //GL.Enable(EnableCap.DepthTest);
+    }
+
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         GL.ClearColor(Color.CornflowerBlue);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
-        line.Draw(shader, camera.viewMatrix, camera.projectionMatrix);
+        //line.Draw(shader, camera.viewMatrix, camera.projectionMatrix);
 
-        ImGui.SetNextWindowSize(new Vector2(800, 500), ImGuiCond.Once);
+
+        ImGui.SetNextWindowSize(new System.Numerics.Vector2(800, 500), ImGuiCond.Once);
 
         if (ShowDockingDemo)
         {
@@ -143,6 +183,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         Controller.Render();
 
+        //grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
+        cylinder.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition, new Vector3(1.0f, 0.0f, 0.0f));
+
         SwapBuffers();
     }
 
@@ -162,6 +205,18 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             var delta = e.Delta.Y;
             camera.ChangeDistance((float)(delta * 0.01f));
         }
+
+        if (this.MouseState[MouseButton.Middle])
+        {
+            double speed = 0.2;
+            var pos = e.Position;
+            double deltaY = pos.Y - prev_mouse.Y;
+            double deltaX = pos.X - prev_mouse.X;
+            camera.UpdateRotation((float)(deltaY * speed), (float)(deltaX * speed));
+        }
+
+
+        prev_mouse = e.Position;
     }
 
     #region SampleDocking
@@ -255,7 +310,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     private void SampleExtraFontDemo()
     {
-        ImGui.SetNextWindowSize(new Vector2(400, 100), ImGuiCond.Once);
+        ImGui.SetNextWindowSize(new  System.Numerics.Vector2(400, 100), ImGuiCond.Once);
 
         if (ImGui.Begin("Sample: extra font"))
         {

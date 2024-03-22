@@ -12,6 +12,7 @@ namespace SampleApplication.OpenTK
         float PositionZ = 5;
 
         public Matrix4 viewMatrix { get; set; }
+        public Vector3 cameraPosition { get { return Pos; } }
         public Matrix4 projectionMatrix { get; set; }
         //Vector3 Direction;
         public Vector3 Target { get; set; }
