@@ -65,7 +65,7 @@ namespace SampleApplication.OpenTK
             shader.Use();
             shader.SetMatrix4("persp", perspective);
             shader.SetMatrix4("view", view);
-            shader.SetMatrix4("model", Matrix4.Identity);
+            shader.SetMatrix4("model", Matrix4.CreateTranslation(new Vector3(2.0f,0.0f,0.0f)));
             //shader.SetVec3("color", new Vector3(0, 1, 1));
             GL.BindVertexArray(VAO);
             GL.DrawElements(PrimitiveType.Lines, 2, DrawElementsType.UnsignedInt, 0);

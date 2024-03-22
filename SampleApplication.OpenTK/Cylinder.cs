@@ -42,7 +42,7 @@ namespace SampleApplication.OpenTK
             Height = 3.0f;
             ResX = 50;
             //ResY = 36;
-            Rot = new Vector3(0, 0, 0);
+            Rot = new Vector3(90, 0, 0);
             Translation = new Vector3(0, 0, 0);
             Scale = Vector3.One;
             IsSelected = false;
@@ -75,6 +75,8 @@ namespace SampleApplication.OpenTK
             GL.EnableVertexAttribArray(1);
 
             IndicesCount = indices.Length;
+
+            //GL.BindVertexArray(0);
         }
 
         public void UpdateVAO()

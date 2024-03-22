@@ -39,8 +39,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     private bool ShowDockingDemo = true;
 
-    Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
-     //Grid grid; //Shader gridShader;
+    Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
+    Grid grid; Shader gridShader; Pumon puma;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -78,20 +78,22 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     protected void SetupObjects()
     {
+        grid = new Grid();
         line = new Line();
         cylinder = new Cylinder();
-        //grid = new Grid();
+        puma = new Pumon();
     }
     protected void SetupShaders()
     {
         // instead of using path "Shaders/ShaderVerts.glsl and using option "copy to output directory" the path is given directly to the source of shaders (every change gonna be instant)
-        //shader = new Shader("../../../Shaders/ShaderVert.glsl", "../../../Shaders/ShaderFrag.glsl");
+        shader = new Shader("../../../Shaders/ShaderVert.glsl", "../../../Shaders/ShaderFrag.glsl");
 
-        //gridShader = new Shader("../../../Shaders/GridShaderVert.glsl", "../../../Shaders/GridShaderFrag.glsl");
+        gridShader = new Shader("../../../Shaders/GridShaderVert.glsl", "../../../Shaders/GridShaderFrag.glsl");
 
-        //gridShader.Use();
-        //gridShader.SetVec4("backgroundColor", new Vector4(0.66f, 0.66f, 0.66f, 1f));
-        //gridShader.SetVec4("gridColor", new Vector4(1f, 0f, 0f, 1f));
+        gridShader.Use();
+        var backColor = Color.CornflowerBlue.ToVector4();
+        gridShader.SetVec4("backgroundColor", new Vector4(backColor.X, backColor.Y, backColor.Z, backColor.W)); // new Vector4(0.66f, 0.66f, 0.66f, 1f));
+        gridShader.SetVec4("gridColor", new Vector4(0f, 1f, 1f, 1f));
 
 
         phongShader = new Shader("../../../Shaders/ShaderPhongVert.glsl", "../../../Shaders/ShaderPhongFrag.glsl");
@@ -132,16 +134,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     {
         GL.ClearColor(Color.CornflowerBlue);
         GL.Clear(ClearBufferMask.ColorBufferBit);
-
-        //line.Draw(shader, camera.viewMatrix, camera.projectionMatrix);
-
-
+       
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(800, 500), ImGuiCond.Once);
-
-        if (ShowDockingDemo)
-        {
-            //DrawDockSpaceOptionsBar(ref ShowDockingDemo);
-        }
 
 
         if (ImGui.Begin("Hello, world!"))
@@ -169,22 +163,13 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         ImGui.End();
 
-        //SampleExtraFontDemo();
-
-        if (ShowImGuiDemo)
-        {
-            //ImGui.ShowDemoWindow(ref ShowImGuiDemo);
-        }
-
-        if (ShowImPlotDemo)
-        {
-            //ImPlot.ShowDemoWindow(ref ShowImPlotDemo);
-        }
-
         Controller.Render();
 
-        //grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
-        cylinder.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition, new Vector3(1.0f, 0.0f, 0.0f));
+        grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
+        //line.Draw(shader, camera.viewMatrix, camera.projectionMatrix);
+        //cylinder.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition, new Vector3(1.0f, 0.0f, 0.0f));
+        puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix,camera.cameraPosition);
+
 
         SwapBuffers();
     }
