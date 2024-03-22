@@ -8,9 +8,16 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using Vector2 = System.Numerics.Vector2;
 
 namespace SampleApplication.OpenTK;
+
+struct ViewPerspectiveSettings
+{
+    public float fov, f, n;
+    public ViewPerspectiveSettings(float Fov, float F, float N) { fov = Fov; f = F; n = N; }
+}
 
 internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 {
@@ -32,16 +39,23 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     private bool ShowDockingDemo = true;
 
+    Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line;
+
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
-        Controller = new ImGuiController(this, "Roboto-Regular.ttf", 10.0f);
+        Controller = new ImGuiController(this, "Roboto-Regular.ttf", 20.0f);
 
         ImPlotContext = ImPlot.CreateContext();
 
         ImPlot.SetCurrentContext(ImPlotContext);
 
         ImPlot.SetImGuiContext(Controller.Context);
+
+        SetupShaders();
+        SetupCamera();
+        line = new Line();
+
     }
 
     protected override void Dispose(bool disposing)
@@ -61,17 +75,32 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         Controller.Update((float)args.Time);
     }
+    protected void SetupShaders()
+    {
+        // instead of using path "Shaders/ShaderVerts.glsl and using option "copy to output directory" the path is given directly to the source of shaders (every change gonna be instant)
+        shader = new Shader("../../../Shaders/ShaderVert.glsl", "../../../Shaders/ShaderFrag.glsl");
+    }
+
+    protected void SetupCamera()
+    {
+        //Camera initialization
+        camera = new Camera();
+        perspectiveSettings = new ViewPerspectiveSettings(45.0f, 30.0f, 0.5f);
+        camera.UpdateProjectionMatrix((float)ClientSize.X, (float)ClientSize.Y, perspectiveSettings.fov, perspectiveSettings.n, perspectiveSettings.f);
+    }
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         GL.ClearColor(Color.CornflowerBlue);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
+        line.Draw(shader, camera.viewMatrix, camera.projectionMatrix);
+
         ImGui.SetNextWindowSize(new Vector2(800, 500), ImGuiCond.Once);
 
         if (ShowDockingDemo)
         {
-            DrawDockSpaceOptionsBar(ref ShowDockingDemo);
+            //DrawDockSpaceOptionsBar(ref ShowDockingDemo);
         }
 
 
@@ -100,16 +129,16 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         ImGui.End();
 
-        SampleExtraFontDemo();
+        //SampleExtraFontDemo();
 
         if (ShowImGuiDemo)
         {
-            ImGui.ShowDemoWindow(ref ShowImGuiDemo);
+            //ImGui.ShowDemoWindow(ref ShowImGuiDemo);
         }
 
         if (ShowImPlotDemo)
         {
-            ImPlot.ShowDemoWindow(ref ShowImPlotDemo);
+            //ImPlot.ShowDemoWindow(ref ShowImPlotDemo);
         }
 
         Controller.Render();
@@ -122,6 +151,17 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         base.OnResize(e);
 
         GL.Viewport(0, 0, e.Width, e.Height);
+    }
+
+    protected override void OnMouseMove(MouseMoveEventArgs e)
+    {
+        base.OnMouseMove(e);
+
+        if (this.MouseState[MouseButton.Right])
+        {
+            var delta = e.Delta.Y;
+            camera.ChangeDistance((float)(delta * 0.01f));
+        }
     }
 
     #region SampleDocking
