@@ -18,7 +18,7 @@ struct ViewPerspectiveSettings
     public float fov, f, n;
     public ViewPerspectiveSettings(float Fov, float F, float N) { fov = Fov; f = F; n = N; }
 }
-
+// TESTING THINGS
 internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 {
     private static readonly double[] SampleData1 = Enumerable.Range(0, 256).Select(s => Math.Cos(s / 2.0d / Math.PI)).ToArray();
