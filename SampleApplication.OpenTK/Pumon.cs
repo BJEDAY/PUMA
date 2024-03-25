@@ -9,7 +9,7 @@ namespace SampleApplication.OpenTK
 {
     public class Pumon
     {
-        Cylinder c1,c2,c3;
+        Cylinder c1,c2,c3,c4;
         public Matrix4 TranslationC1;
         public Matrix4 RotationC1;
         public Matrix4 TranslationC2;
@@ -20,9 +20,15 @@ namespace SampleApplication.OpenTK
         public Vector4 currentEnd;
 
         public float a1, a2, a3, a4, a5;
+        public float len1, len2, len3, len4;
 
         public Pumon() 
         {
+            len1 = 3f;
+            len2 = 3f;
+            len3 = 3f;
+            len4 = 3f;
+
             c1 = new Cylinder();
             //TranslationC1 = Matrix4.CreateTranslation(0,0,0);
             //RotationC1 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(0));
@@ -35,12 +41,39 @@ namespace SampleApplication.OpenTK
             //TranslationC3 = Matrix4.CreateTranslation(0, -c2.Height, c1.Height);
             //RotationC3 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90))* Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(45));
 
-            a1 = MathHelper.DegreesToRadians(0);
+            c4 = new();
+            c4.Rot = new Vector3(180, 90, 0);
+            c4.UpdateModelMatrix();
+
+            a1 = MathHelper.DegreesToRadians(45);
             a2 = MathHelper.DegreesToRadians(90);
-            a3 = MathHelper.DegreesToRadians(90);
+            a3 = MathHelper.DegreesToRadians(-90);
+            a4 = MathHelper.DegreesToRadians(0);
         }
 
-
+        public void UpdateLen(int num)
+        {
+            if (num == 1) 
+            {
+                c1.Height = len1;
+                c1.UpdateVAO();
+            }
+            if (num == 2)
+            {
+                c2.Height = len2;
+                c2.UpdateVAO();
+            }
+            if (num == 3)
+            {
+                c3.Height = len3;
+                c3.UpdateVAO();
+            }
+            if (num == 4)
+            {
+                c4.Height = len4;
+                c4.UpdateVAO();
+            }
+        }
         public void Render(Shader shader, Matrix4 view, Matrix4 perspective, Vector3 cameraPos)
         {
             //c1.Render(shader,c1.ModelMatrix* RotationC1*TranslationC1, view, perspective, cameraPos, new Vector3(1.0f,0.0f,0.0f));
@@ -51,7 +84,8 @@ namespace SampleApplication.OpenTK
 
             c1.Render(shader, c1.ModelMatrix*transform, view, perspective, cameraPos, new Vector3(1.0f,0.0f,0.0f));
 
-            transform =  Matrix4.CreateRotationX(a2)  * Matrix4.CreateTranslation(0, 0, c1.Height) * transform;
+            //transform =  Matrix4.CreateRotationX(a2)  * Matrix4.CreateTranslation(0, 0, c1.Height) * transform;
+            transform = Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1)* Matrix4.CreateTranslation(0, 0, c1.Height);
 
             c2.Render(shader,c2.ModelMatrix* transform, view, perspective, cameraPos, new Vector3(1.0f, 1.0f, 0.0f));
 
@@ -66,6 +100,13 @@ namespace SampleApplication.OpenTK
             transform = Matrix4.CreateRotationX(a3)* Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z); //Matrix4.CreateRotationX(a3)  *
 
             c3.Render(shader, c3.ModelMatrix * transform, view, perspective, cameraPos, new Vector3(0.0f, 1.0f, 1.0f));
+
+            currentDir = new Vector4(0, 0, 1, 0);
+            currentDir *= transform;
+            currentEnd += currentDir * c3.Height;
+
+            transform = Matrix4.CreateRotationZ(a4) * Matrix4.CreateRotationX(a3) * Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z);
+            c4.Render(shader, c4.ModelMatrix * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 1.0f));
         }
     }
 }
