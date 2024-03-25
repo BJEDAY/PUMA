@@ -22,6 +22,9 @@ namespace SampleApplication.OpenTK
         public float a1, a2, a3, a4, a5;
         public float len1, len2, len3, len4;
 
+        Cylinder block;
+        float blockHeight = 0.22f;
+        float blockRadius = 0.15f;
         public Pumon() 
         {
             len1 = 3f;
@@ -49,6 +52,8 @@ namespace SampleApplication.OpenTK
             a2 = MathHelper.DegreesToRadians(90);
             a3 = MathHelper.DegreesToRadians(-90);
             a4 = MathHelper.DegreesToRadians(0);
+
+            block = new(blockHeight, blockRadius);
         }
 
         public void UpdateLen(int num)
@@ -81,12 +86,13 @@ namespace SampleApplication.OpenTK
             //c3.Render(shader,c3.ModelMatrix*RotationC3*TranslationC3,view,perspective, cameraPos, new Vector3(0.0f,1.0f,1.0f));
 
             var transform = Matrix4.CreateRotationZ(a1);
-
+            var blockTransform = Matrix4.CreateTranslation(0, 0, -blockHeight / 2) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(90));
+            block.Render(shader, block.ModelMatrix, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 0.0f));
             c1.Render(shader, c1.ModelMatrix*transform, view, perspective, cameraPos, new Vector3(1.0f,0.0f,0.0f));
 
             //transform =  Matrix4.CreateRotationX(a2)  * Matrix4.CreateTranslation(0, 0, c1.Height) * transform;
             transform = Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1)* Matrix4.CreateTranslation(0, 0, c1.Height);
-
+            block.Render(shader, block.ModelMatrix * blockTransform* transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 0.0f));
             c2.Render(shader,c2.ModelMatrix* transform, view, perspective, cameraPos, new Vector3(1.0f, 1.0f, 0.0f));
 
             // to teraz tak, defaultowo dla 0 stopni c2 leci pionowo do góry. aby wyznaczyć punkt położenia jej aktualnego końca (i wiedzieć gdzie przesunąć c3)
@@ -98,15 +104,19 @@ namespace SampleApplication.OpenTK
             currentEnd += currentDir * c2.Height;
 
             transform = Matrix4.CreateRotationX(a3)* Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z); //Matrix4.CreateRotationX(a3)  *
-
+            block.Render(shader, block.ModelMatrix * blockTransform * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 0.0f));
             c3.Render(shader, c3.ModelMatrix * transform, view, perspective, cameraPos, new Vector3(0.0f, 1.0f, 1.0f));
 
             currentDir = new Vector4(0, 0, 1, 0);
             currentDir *= transform;
             currentEnd += currentDir * c3.Height;
 
+            blockTransform = Matrix4.CreateTranslation(0, 0, -blockHeight / 2);
             transform = Matrix4.CreateRotationZ(a4) * Matrix4.CreateRotationX(a3) * Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z);
+            block.Render(shader, block.ModelMatrix * blockTransform * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 0.0f));
             c4.Render(shader, c4.ModelMatrix * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 1.0f));
+
+            
         }
     }
 }

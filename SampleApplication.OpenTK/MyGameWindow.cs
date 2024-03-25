@@ -129,13 +129,14 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     protected void SetupGL()
     {
         GL.Enable(EnableCap.CullFace);
-        //GL.Enable(EnableCap.DepthTest);
+        GL.Enable(EnableCap.DepthTest);
+        GL.DepthFunc(DepthFunction.Less);
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         GL.ClearColor(Color.CornflowerBlue);
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);

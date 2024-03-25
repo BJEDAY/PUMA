@@ -52,6 +52,25 @@ namespace SampleApplication.OpenTK
             GenerateVAO();
             UpdateModelMatrix();
         }
+        public Cylinder(float h, float r)
+        {
+            ObjectID = 0;
+            ObjectName = $"Cutter {ObjectID}";
+            Radius = r;
+            Height = h;
+            ResX = 50;
+            //ResY = 36;
+            Rot = new Vector3(90, 0, 0);
+            Translation = new Vector3(0, 0, 0);
+            Scale = Vector3.One;
+            IsSelected = false;
+            vertices = new float[0];
+            indices = new int[0];
+            //normals = new float[0];
+            GenerateVAO();
+            UpdateModelMatrix();
+        }
+
 
         public void GenerateVAO()
         {

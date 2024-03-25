@@ -51,6 +51,7 @@ namespace SampleApplication.OpenTK
             Pos = new Vector3(actual_pos.X, actual_pos.Y, actual_pos.Z);
 
             viewMatrix = ViewMatrix(Pos);
+            //viewMatrix = Matrix4.LookAt(new Vector3(actual_pos.X, actual_pos.Y, actual_pos.Z), Vector3.Zero, Up);
             //return Matrix4.LookAt(new Vector3(actual_pos.X, actual_pos.Y, actual_pos.Z), Vector3.Zero, Up);
         }
 
@@ -69,14 +70,16 @@ namespace SampleApplication.OpenTK
             Vector4 Row2 = new Vector4(0, val2, 0, 0);
             Vector4 Row3 = new Vector4(0, 0, val3, val4);
             Vector4 Row4 = new Vector4(0, 0, 1, 0);
-            projectionMatrix = new Matrix4(Row1, Row2, Row3, Row4);
+            //projectionMatrix = new Matrix4(Row1, Row2, Row3, Row4);
             //projectionMatrix = Matrix4.CreateOrthographic(width, height, n, f);
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(fov), aspect, n, f);
         }
 
         public void ChangeDistance(float z)
         {
-            //PositionZ += z;
+            PositionZ += z;
             NewPos.Z += z;
+            //Pos.Z += z;
             UpdateViewMatrix();
         }
 
