@@ -45,7 +45,7 @@ namespace SampleApplication.OpenTK
             //Get actual position including rotation
             //var actual_pos = Matrix4.CreateRotationX(rotX) * Matrix4.CreateRotationY(rotY)* new Vector4(Position, 1);
             //var actual_pos = new Vector4(new Vector3(0.0f, 0.0f, PositionZ), 1) * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotY));
-            var actual_pos = new Vector4(NewPos, 1) * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotY));
+            var actual_pos = new Vector4(0,0,PositionZ, 1) * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(rotX)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(rotY));
 
             //NEW STUFF
             Pos = new Vector3(actual_pos.X, actual_pos.Y, actual_pos.Z);

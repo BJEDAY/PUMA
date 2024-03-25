@@ -17,28 +17,55 @@ namespace SampleApplication.OpenTK
         public Matrix4 TranslationC3;
         public Matrix4 RotationC3;
 
+        public Vector4 currentEnd;
+
+        public float a1, a2, a3, a4, a5;
+
         public Pumon() 
         {
             c1 = new Cylinder();
-            TranslationC1 = Matrix4.CreateTranslation(0,0,0);
-            RotationC1 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(0));
+            //TranslationC1 = Matrix4.CreateTranslation(0,0,0);
+            //RotationC1 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(0));
 
             c2 = new();
-            TranslationC2 = Matrix4.CreateTranslation(0, 0, c1.Height);
-            RotationC2 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90));
+            //TranslationC2 = Matrix4.CreateTranslation(0, 0, c1.Height);
+            //RotationC2 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90));
 
             c3 = new();
-            TranslationC3 = Matrix4.CreateTranslation(0, -c2.Height, c1.Height);
-            RotationC3 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90))* Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(45));
+            //TranslationC3 = Matrix4.CreateTranslation(0, -c2.Height, c1.Height);
+            //RotationC3 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(90))* Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(45));
+
+            a1 = MathHelper.DegreesToRadians(0);
+            a2 = MathHelper.DegreesToRadians(90);
+            a3 = MathHelper.DegreesToRadians(90);
         }
 
 
         public void Render(Shader shader, Matrix4 view, Matrix4 perspective, Vector3 cameraPos)
         {
-            c1.Render(shader,c1.ModelMatrix* RotationC1*TranslationC1, view, perspective, cameraPos, new Vector3(1.0f,0.0f,0.0f));
-            c2.Render(shader,c2.ModelMatrix*RotationC2*TranslationC2,view,perspective, cameraPos, new Vector3(1.0f,0.0f,1.0f));
-            c3.Render(shader,c3.ModelMatrix*RotationC3*TranslationC3,view,perspective, cameraPos, new Vector3(0.0f,1.0f,1.0f));
-            
+            //c1.Render(shader,c1.ModelMatrix* RotationC1*TranslationC1, view, perspective, cameraPos, new Vector3(1.0f,0.0f,0.0f));
+            //c2.Render(shader,c2.ModelMatrix*RotationC2*TranslationC2,view,perspective, cameraPos, new Vector3(1.0f,0.0f,1.0f));
+            //c3.Render(shader,c3.ModelMatrix*RotationC3*TranslationC3,view,perspective, cameraPos, new Vector3(0.0f,1.0f,1.0f));
+
+            var transform = Matrix4.CreateRotationZ(a1);
+
+            c1.Render(shader, c1.ModelMatrix*transform, view, perspective, cameraPos, new Vector3(1.0f,0.0f,0.0f));
+
+            transform =  Matrix4.CreateRotationX(a2)  * Matrix4.CreateTranslation(0, 0, c1.Height) * transform;
+
+            c2.Render(shader,c2.ModelMatrix* transform, view, perspective, cameraPos, new Vector3(1.0f, 1.0f, 0.0f));
+
+            // to teraz tak, defaultowo dla 0 stopni c2 leci pionowo do góry. aby wyznaczyć punkt położenia jej aktualnego końca (i wiedzieć gdzie przesunąć c3)
+            // trzeba kierunek (wektor) będący pionową krechą tak samo potraktować przekstałceniami, a potem z tego wyznaczyć przesunięcie z końca c1 na koniec c2
+
+            var currentDir = new Vector4(0, 0, 1,0);
+            currentDir*= transform;
+            currentEnd = new Vector4(0,0,c1.Height,1);
+            currentEnd += currentDir * c2.Height;
+
+            transform = Matrix4.CreateRotationX(a3)* Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z); //Matrix4.CreateRotationX(a3)  *
+
+            c3.Render(shader, c3.ModelMatrix * transform, view, perspective, cameraPos, new Vector3(0.0f, 1.0f, 1.0f));
         }
     }
 }

@@ -39,6 +39,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     private bool ShowDockingDemo = true;
 
+    bool openPR = false;
+
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
     Grid grid; Shader gridShader; Pumon puma;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
@@ -134,42 +136,27 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     {
         GL.ClearColor(Color.CornflowerBlue);
         GL.Clear(ClearBufferMask.ColorBufferBit);
-       
+
+        grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
+        puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(800, 500), ImGuiCond.Once);
 
-
-        if (ImGui.Begin("Hello, world!"))
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f,0.5f,0.3f,1.0f));
+        if (ImGui.Begin("PUMA Settings"))//, ref openPR, ImGuiWindowFlags.NoBackground))
         {
-            if (ImPlot.BeginPlot("Sample plot"))
+            ImGui.SliderAngle("Alfa1", ref puma.a1);
+            if(ImGui.SliderAngle("Alfa2", ref puma.a2))
             {
-                ImPlot.SetupAxes("X", "Y");
-
-                ImPlot.SetNextLineStyle(Color1.ToVector4());
-                ImPlot.PlotLine("Sample data 1", ref SampleData1[0], SampleData1.Length);
-
-                ImPlot.SetNextLineStyle(Color2.ToVector4());
-                ImPlot.PlotLine("Sample data 2", ref SampleData2[0], SampleData2.Length);
-
-                ImPlot.EndPlot();
+                //Console.WriteLine($"Angle a is {90 - MathHelper.RadiansToDegrees(puma.a2)}");
+                Console.WriteLine($"Current end is {puma.currentEnd}");
             }
-
-            ImGui.ColorEdit4("Color 1", Color1.AsSpan(), ImGuiColorEditFlags.NoInputs);
-            ImGui.ColorEdit4("Color 2", Color2.AsSpan(), ImGuiColorEditFlags.NoInputs);
-
-            ImGui.Checkbox("Show ImGui Demo", ref ShowImGuiDemo);
-            ImGui.Checkbox("Show ImPlot Demo", ref ShowImPlotDemo);
-            ImGui.Checkbox("Show Docking Demo", ref ShowDockingDemo);
+            ImGui.SliderAngle("Alfa3", ref puma.a3);
         }
-
+        ImGui.PopStyleColor();
         ImGui.End();
 
         Controller.Render();
-
-        grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
-        //line.Draw(shader, camera.viewMatrix, camera.projectionMatrix);
-        //cylinder.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition, new Vector3(1.0f, 0.0f, 0.0f));
-        puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix,camera.cameraPosition);
-
 
         SwapBuffers();
     }
