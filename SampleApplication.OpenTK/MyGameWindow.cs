@@ -145,6 +145,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         // left screen
         GL.Viewport(0,0,ClientSize.X/2,ClientSize.Y);
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
+
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         seperatingLine.moveRight = true;
         seperatingLine.Render(shader);
@@ -153,6 +154,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         // right screen
         GL.Viewport(ClientSize.X / 2, 0, ClientSize.X / 2, ClientSize.Y);
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
+
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         seperatingLine.moveRight = false;
         seperatingLine.Render(shader);

@@ -102,6 +102,8 @@ namespace SampleApplication.OpenTK
         {
             GenerateMesh();
 
+            GL.BindVertexArray(VertexArrayObject);
+
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);    //nie musimy podpinać znów VAO, bo to VBO jest skojarzone z odpowiednim VAO (chyba)
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.DynamicDraw);
 
