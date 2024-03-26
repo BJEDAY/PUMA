@@ -42,7 +42,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     bool openPR = false;
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
-    Grid grid; Shader gridShader; Pumon puma;
+    Grid grid; Shader gridShader; Pumon puma; //CoordinateSystem coord;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -84,6 +84,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         line = new Line();
         cylinder = new Cylinder();
         puma = new Pumon();
+        //coord = new CoordinateSystem();
+        //coord.TranslationMatrix = Matrix4.CreateTranslation(0, 1, 0);
     }
     protected void SetupShaders()
     {
@@ -140,6 +142,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        //coord.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
 
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 500), ImGuiCond.Once);
 
@@ -154,6 +157,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             }
             ImGui.SliderAngle("Alfa3", ref puma.a3);
             ImGui.SliderAngle("Alfa4", ref puma.a4);
+            ImGui.SliderAngle("Alfa5", ref puma.a5);
 
             if(ImGui.SliderFloat("L1",ref puma.len1,0.0f,10.0f))
             {

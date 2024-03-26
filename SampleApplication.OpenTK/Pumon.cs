@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using PInvoke;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace SampleApplication.OpenTK
     public class Pumon
     {
         Cylinder c1,c2,c3,c4;
+        CoordinateSystem coord;
         public Matrix4 TranslationC1;
         public Matrix4 RotationC1;
         public Matrix4 TranslationC2;
@@ -48,10 +50,13 @@ namespace SampleApplication.OpenTK
             c4.Rot = new Vector3(180, 90, 0);
             c4.UpdateModelMatrix();
 
+            coord = new();
+
             a1 = MathHelper.DegreesToRadians(45);
             a2 = MathHelper.DegreesToRadians(90);
             a3 = MathHelper.DegreesToRadians(-90);
             a4 = MathHelper.DegreesToRadians(0);
+            a5 = MathHelper.DegreesToRadians(0);
 
             block = new(blockHeight, blockRadius);
         }
@@ -111,12 +116,21 @@ namespace SampleApplication.OpenTK
             currentDir *= transform;
             currentEnd += currentDir * c3.Height;
 
+
+            // in that last case of alfa5 the block should not be rotated by it's value (that looks weird) - that's why RotationY is seperate from transform
             blockTransform = Matrix4.CreateTranslation(0, 0, -blockHeight / 2);
             transform = Matrix4.CreateRotationZ(a4) * Matrix4.CreateRotationX(a3) * Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z);
             block.Render(shader, block.ModelMatrix * blockTransform * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 0.0f));
-            c4.Render(shader, c4.ModelMatrix * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 1.0f));
+            c4.Render(shader, c4.ModelMatrix * Matrix4.CreateRotationY(a5) * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 1.0f));
 
-            
+            currentDir = new Vector4(0,-1,0,0);
+            currentDir *= transform;
+            currentEnd += currentDir * (c4.Height+0.02f);
+
+            transform = Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(180)) * Matrix4.CreateRotationY(a5) * Matrix4.CreateRotationZ(a4) * Matrix4.CreateRotationX(a3) * Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z);
+            //transform = Matrix4.Identity;
+            coord.Render(shader, view, perspective, cameraPos, transform);
+
         }
     }
 }
