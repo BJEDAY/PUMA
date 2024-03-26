@@ -42,7 +42,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     bool openPR = false;
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
-    Grid grid; Shader gridShader; Pumon puma; //CoordinateSystem coord;
+    Grid grid; Shader gridShader; Pumon puma; Rect seperatingLine; //CoordinateSystem coord;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -82,6 +82,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     {
         grid = new Grid();
         line = new Line();
+        seperatingLine = new Rect();
         cylinder = new Cylinder();
         puma = new Pumon();
         //coord = new CoordinateSystem();
@@ -125,7 +126,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         //Camera initialization
         camera = new Camera();
         perspectiveSettings = new ViewPerspectiveSettings(45.0f, 30.0f, 0.5f);
-        camera.UpdateProjectionMatrix((float)ClientSize.X, (float)ClientSize.Y, perspectiveSettings.fov, perspectiveSettings.n, perspectiveSettings.f);
+        camera.UpdateProjectionMatrix((float)ClientSize.X/2, (float)ClientSize.Y, perspectiveSettings.fov, perspectiveSettings.n, perspectiveSettings.f);
     }
 
     protected void SetupGL()
@@ -140,9 +141,24 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         GL.ClearColor(Color.CornflowerBlue);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
+
+        // left screen
+        GL.Viewport(0,0,ClientSize.X/2,ClientSize.Y);
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        seperatingLine.moveRight = true;
+        seperatingLine.Render(shader);
         //coord.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+
+        // right screen
+        GL.Viewport(ClientSize.X / 2, 0, ClientSize.X / 2, ClientSize.Y);
+        grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
+        puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        seperatingLine.moveRight = false;
+        seperatingLine.Render(shader);
+
+        // whole screen
+        GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 500), ImGuiCond.Once);
 
