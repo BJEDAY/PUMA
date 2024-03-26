@@ -42,7 +42,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     bool openPR = false;
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
-    Grid grid; Shader gridShader; Pumon puma; Rect seperatingLine; //CoordinateSystem coord;
+    Grid grid; Shader gridShader; Pumon puma; Rect seperatingLine; CoordinateSystem startCoord; CoordinateSystem endCoord;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -84,9 +84,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         line = new Line();
         seperatingLine = new Rect();
         cylinder = new Cylinder();
+        startCoord = new CoordinateSystem();
+        endCoord = new CoordinateSystem();
         puma = new Pumon();
-        //coord = new CoordinateSystem();
-        //coord.TranslationMatrix = Matrix4.CreateTranslation(0, 1, 0);
     }
     protected void SetupShaders()
     {
@@ -146,6 +146,10 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         GL.Viewport(0,0,ClientSize.X/2,ClientSize.Y);
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
 
+        //startCoord.RenderUsingEuler(phongShader, camera.viewMatrix,camera.projectionMatrix,camera.cameraPosition);
+        startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         seperatingLine.moveRight = true;
         seperatingLine.Render(shader);
@@ -155,6 +159,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         GL.Viewport(ClientSize.X / 2, 0, ClientSize.X / 2, ClientSize.Y);
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
 
+        startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+
         puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         seperatingLine.moveRight = false;
         seperatingLine.Render(shader);
@@ -162,10 +169,11 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         // whole screen
         GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
-        ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 500), ImGuiCond.Once);
+        ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 250), ImGuiCond.Once);
+        ImGui.SetNextWindowPos(new System.Numerics.Vector2(400, 0));
 
         ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f,0.5f,0.3f,1.0f));
-        if (ImGui.Begin("PUMA Settings"))//, ref openPR, ImGuiWindowFlags.NoBackground))
+        if (ImGui.Begin("PUMA Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
             ImGui.SliderAngle("Alfa1", ref puma.a1);
             if(ImGui.SliderAngle("Alfa2", ref puma.a2))
@@ -196,6 +204,51 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         }
         ImGui.PopStyleColor();
         ImGui.End();
+
+        ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 250), ImGuiCond.Once);
+        ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);   
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f, 0.5f, 0.3f, 1.0f));
+        if (ImGui.Begin("Config Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
+        {
+            if(ImGui.TreeNode("Start"))
+            {
+                ImGui.DragFloat3("Position", startCoord.Position, 0.1f, -10,10);
+                if(ImGui.DragFloat3("Euler", startCoord.EulerAngle,0.5f, -180, 180))
+                {
+                    var data = HelpConverters.ConvertEulerToQuaternion(startCoord.Euler);
+                    startCoord.QuatData = new Vector4(data.X, data.Y, data.Z, data.W);
+                    startCoord.UpdateQuaternionData();
+                }
+                if(ImGui.DragFloat4("Quaternion", startCoord.Quaternion,0.01f, -10, 10))
+                {
+                    startCoord.UpdateQuaternionData();
+                    var data = HelpConverters.ConvertQuaternionToEuler(startCoord.Quat);
+                    startCoord.Euler = data;
+                }
+                ImGui.TreePop();
+            }
+            if (ImGui.TreeNode("End"))
+            {
+                ImGui.DragFloat3("Position", endCoord.Position, 0.1f, -10, 10);
+                if (ImGui.DragFloat3("Euler", endCoord.EulerAngle,0.5f, -180, 180))
+                {
+                    var data = HelpConverters.ConvertEulerToQuaternion(endCoord.Euler);
+                    endCoord.QuatData = new Vector4(data.X, data.Y, data.Z, data.W);
+                    endCoord.UpdateQuaternionData();
+                }
+                if (ImGui.DragFloat4("Quaternion", endCoord.Quaternion,0.01f, -10, 10))
+                {
+                    endCoord.UpdateQuaternionData();
+                    var data = HelpConverters.ConvertQuaternionToEuler(endCoord.Quat);
+                    endCoord.Euler = data;
+                }
+                ImGui.TreePop();
+            }
+        }
+        ImGui.PopStyleColor();
+        ImGui.End();
+
+
 
         Controller.Render();
 
