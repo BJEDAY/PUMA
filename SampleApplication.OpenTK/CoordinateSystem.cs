@@ -17,6 +17,7 @@ namespace SampleApplication.OpenTK
         public Matrix4 TranslationMatrix;
         public Matrix4 RotationMatrix;
 
+
         public Vector3 Pos;
         public Vector3 Euler;
         public Vector4 QuatData;
@@ -48,6 +49,14 @@ namespace SampleApplication.OpenTK
             }
         }
 
+        public Matrix4 GetRotationMatrix
+        {
+            get
+            {
+                return HelpConverters.GetRotationMarixFromQuaternion(Quat);
+            }
+        }
+
         public CoordinateSystem()
         {
             float scale = 0.17f;
@@ -73,6 +82,14 @@ namespace SampleApplication.OpenTK
             Pos = new Vector3();
             Euler = new Vector3();
             Quat = new Quaternion(0,0,0,1);
+        }
+
+        public CoordinateSystem(Vector3 pos, Vector3 euler) : this()
+        {           
+            Pos = pos;
+            Euler = euler;
+            Quat = HelpConverters.ConvertEulerToQuaternion(Euler);
+            QuatData = new Vector4(Quat.X,Quat.Y,Quat.Z,Quat.W);
         }
 
         public void Render(Shader PhongShader, Matrix4 view, Matrix4 projection, Vector3 camera_pos)

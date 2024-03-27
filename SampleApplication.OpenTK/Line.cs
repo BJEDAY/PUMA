@@ -29,6 +29,13 @@ namespace SampleApplication.OpenTK
             GenerateVAO();
         }
 
+        public Line(Vector3 start, Vector3 end)
+        {
+            verts = new float[6] { start.X, start.Y, start.Z, end.X, end.Y, end.Z };
+            indices = new int[2] { 0, 1 };
+            GenerateVAO();
+        }
+
         public void GenerateVAO()
         {
             VAO = GL.GenVertexArray();
@@ -65,10 +72,18 @@ namespace SampleApplication.OpenTK
             shader.Use();
             shader.SetMatrix4("persp", perspective);
             shader.SetMatrix4("view", view);
-            shader.SetMatrix4("model", Matrix4.CreateTranslation(new Vector3(2.0f,0.0f,0.0f)));
+            shader.SetMatrix4("model", Matrix4.Identity);//Matrix4.CreateTranslation(new Vector3(2.0f,0.0f,0.0f)));
             //shader.SetVec3("color", new Vector3(0, 1, 1));
             GL.BindVertexArray(VAO);
             GL.DrawElements(PrimitiveType.Lines, 2, DrawElementsType.UnsignedInt, 0);
+        }
+
+        public void Draw(Shader shader, Matrix4 transform)
+        {
+            shader.Use();
+            shader.SetMatrix4("transform", transform);
+            GL.BindVertexArray(VAO);
+            GL.DrawElements(PrimitiveType.Lines,2,DrawElementsType.UnsignedInt, 0);
         }
     }
 }

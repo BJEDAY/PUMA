@@ -84,8 +84,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         line = new Line();
         seperatingLine = new Rect();
         cylinder = new Cylinder();
-        startCoord = new CoordinateSystem();
-        endCoord = new CoordinateSystem();
+        startCoord = new CoordinateSystem(new Vector3(6,0,6), new Vector3(0,0,0));
+        endCoord = new CoordinateSystem(new Vector3(6, -2, 6), new Vector3(0, 0, 0));
         puma = new Pumon();
     }
     protected void SetupShaders()
@@ -173,7 +173,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         ImGui.SetNextWindowPos(new System.Numerics.Vector2(400, 0));
 
         ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f,0.5f,0.3f,1.0f));
-        if (ImGui.Begin("PUMA Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
+        if (ImGui.Begin("Puma Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
             ImGui.SliderAngle("Alfa1", ref puma.a1);
             if(ImGui.SliderAngle("Alfa2", ref puma.a2))
@@ -243,6 +243,16 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
                     endCoord.Euler = data;
                 }
                 ImGui.TreePop();
+            }
+            if(ImGui.Button("Generate positions out of start coord"))
+            {
+                puma.GetPositions(startCoord,shader);
+            }
+            if(ImGui.Button("Get start coord to current puma pos"))
+            {
+                startCoord.Pos = puma.currentEnd.Xyz;
+                startCoord.Quat = puma.currentRot;
+                startCoord.QuatData = new Vector4(startCoord.Quat.X, startCoord.Quat.Y, startCoord.Quat.Z, startCoord.Quat.W);
             }
         }
         ImGui.PopStyleColor();

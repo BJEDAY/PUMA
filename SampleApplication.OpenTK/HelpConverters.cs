@@ -23,7 +23,8 @@ namespace SampleApplication.OpenTK
 
         public static Vector3 ConvertQuaternionToEuler(Quaternion Quater)
         {
-            return Quater.ToEulerAngles();
+            var res = Quater.ToEulerAngles();
+            return new Vector3(MathHelper.RadiansToDegrees(res.X), MathHelper.RadiansToDegrees(res.Y), MathHelper.RadiansToDegrees(res.Z));
         }
 
         private static Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float t)
