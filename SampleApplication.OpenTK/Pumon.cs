@@ -3,8 +3,12 @@ using PInvoke;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Vector3 = OpenTK.Mathematics.Vector3;
+using Vector4 = OpenTK.Mathematics.Vector4;
+using Quaternion = OpenTK.Mathematics.Quaternion;
 
 namespace SampleApplication.OpenTK
 {
@@ -154,7 +158,7 @@ namespace SampleApplication.OpenTK
 
             if (GenLines) 
             {
-                normLine.Draw(lineShader, view * perspective);
+                //normLine.Draw(lineShader, view * perspective);
                 ramie1.Draw(lineShader, view * perspective);
                 ramie4.Draw(lineShader, view * perspective);
                 ramie3.Draw(lineShader, view * perspective);
@@ -200,12 +204,32 @@ namespace SampleApplication.OpenTK
             Vector3 up = new Vector3(0, 0, 1);
             var test = Vector3.Cross(up, x5);
             Console.WriteLine($"Cross up i x5 to: {test}");
-
+            
             
             var vectorRamie3 = Vector3.Cross(p5 - p4, normal);
+
             vectorRamie3.Normalize();
-            if (test.Y >= 0) vectorRamie3 = -vectorRamie3;
+            Console.WriteLine($"Cross normalki i ramienia4: {vectorRamie3}");
+            // almost always works
+            //if (vectorRamie3.Z >= 0) vectorRamie3 = -vectorRamie3;
+            //if(vectorRamie3.X >0 && vectorRamie3.Y<0 && vectorRamie3.Z<0) vectorRamie3 = - vectorRamie3;
+            //if(vectorRamie3.X >0 && vectorRamie3.Y>0 && vectorRamie3.Z>0) vectorRamie3 = - vectorRamie3;
+
             Vector3 p3 = p4 + vectorRamie3 * c3.Height;
+            Vector3 alt_p3 = p4 - vectorRamie3 * c3.Height;
+            var test1 = Math.Abs(Vector3.Distance(p3, p1));
+            var test2 = Math.Abs(Vector3.Distance(alt_p3, p1));
+
+            //var VecLen = (Vector3 a) => { return Math.Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z); };
+
+            // the result is chosen the way that lenght of second arm is lowest possible 
+            // in the future there could be option to choose alternative option
+
+            if (test1 > test2) 
+            {
+                p3 = alt_p3;
+            }
+
             ramie3 = new Line(p3 + offset, p4 + offset);
 
             ramie2 = new Line(p1+offset,p3+ offset);    
