@@ -22,15 +22,22 @@ namespace SampleApplication.OpenTK
         public Matrix4 RotationC2;
         public Matrix4 TranslationC3;
         public Matrix4 RotationC3;
+        
 
         public bool GenLines;
         Line normLine;
+        Line normLine2;
+        Line normLine3;
         Line ramie1;
         Line ramie2;
         Line ramie3;
         Line ramie4;
         Line crossVec;
+
+        Line newLine1, newLine2, newLine3;
+
         Matrix4 transform;
+        Matrix4 transformToArm3End;
 
         Shader lineShader;
 
@@ -43,7 +50,7 @@ namespace SampleApplication.OpenTK
             }
         }
 
-        public float a1, a2, a3, a4, a5;
+        public float a1, a2, a3, a4, a5;    //alfa, beta, gamma, sigma, delta
         public float len1, len2, len3, len4;
 
         Cylinder block;
@@ -146,6 +153,9 @@ namespace SampleApplication.OpenTK
             block.Render(shader, block.ModelMatrix * blockTransform * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 0.0f));
             c4.Render(shader, c4.ModelMatrix * Matrix4.CreateRotationY(a5) * transform, view, perspective, cameraPos, new Vector3(1.0f, 0.0f, 1.0f));
 
+            // it is needed to calculate sigma angle in angles function
+            transformToArm3End = Matrix4.CreateRotationX(a3) * Matrix4.CreateRotationX(a2) * Matrix4.CreateRotationZ(a1) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90)) * Matrix4.CreateTranslation(currentEnd.X, currentEnd.Y, currentEnd.Z); ;
+
             currentDir = new Vector4(0,-1,0,0);
             currentDir *= transform;
             currentEnd += currentDir * (c4.Height+0.02f);
@@ -154,11 +164,16 @@ namespace SampleApplication.OpenTK
             //transform = Matrix4.Identity;
             coord.Render(shader, view, perspective, cameraPos, transform);
 
-            transform.ExtractRotation();
+            //transform.ExtractRotation();
 
             if (GenLines) 
             {
                 //normLine.Draw(lineShader, view * perspective);
+                //normLine2.Draw(lineShader, view * perspective);
+                //normLine3.Draw(lineShader, view * perspective);
+                newLine1.Draw(lineShader, view * perspective);
+                //newLine2.Draw(lineShader, view * perspective);
+                //newLine3.Draw(lineShader, view * perspective);
                 ramie1.Draw(lineShader, view * perspective);
                 ramie4.Draw(lineShader, view * perspective);
                 ramie3.Draw(lineShader, view * perspective);
@@ -183,6 +198,7 @@ namespace SampleApplication.OpenTK
             Console.WriteLine($"Postion p4: {p4}");
             Console.WriteLine($"Postion p5: {p5}");
 
+            //var normal = Vector3.Cross(p1 - p0, p4 - p0);
             var normal = Vector3.Cross(p1 - p0, p4 - p0);
             normal.Normalize();
 
@@ -191,13 +207,12 @@ namespace SampleApplication.OpenTK
 
 
             lineShader = line_shader;
-            Vector3 normOrigin = new Vector3(2, -2, 2);
-            normLine = new Line(normOrigin, normOrigin + normal);
-            Vector3 offset = new Vector3(0.2f, 0.2f, 0.2f); // line are gonna be near the robot, not inside
+            //Vector3 normOrigin = new Vector3(2, -2, 2);
+            Vector3 normOrigin = p1;
+            
+            Vector3 offset = new Vector3(0.2f, 0.2f, 0.2f); // lines are gonna be near the robot, not inside
             ramie1 = new Line(p0+ offset, p1 + offset);
             ramie4 = new Line(p4 + offset, p5 + offset);
-
-
 
 
             // test w która stronę leci vec odbędzie się na podstawie sprawdzenia lokalnego układu
@@ -234,6 +249,110 @@ namespace SampleApplication.OpenTK
 
             ramie2 = new Line(p1+offset,p3+ offset);    
             GenLines = true;
+
+            var normal2 = Vector3.Cross(p1 - p0, p3 - p1);
+            normal2.Normalize();
+            Console.WriteLine($"Normalka pierwsze to: {normal2}");
+
+            var normal3 = Vector3.Cross(p3 - p1, p4 - p3);
+            normal3.Normalize();
+            normLine = new Line(normOrigin, normOrigin + normal2);
+            normOrigin = p3;
+            normLine2 = new Line(normOrigin, normOrigin + normal3);
+
+            var normal4 = Vector3.Cross(p1 - p0,p4 - p0);
+            normal4.Normalize();
+            normOrigin = p1 + p3 / 2;
+            normLine3 = new Line(normOrigin, normOrigin + normal4);
+            GetAnglesFromPositions(p1, p3, p4, p5);
+        }
+
+        public void GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5)
+        {
+            // Pierwsze wyznaczenie kątów będzie z ogarniczeniem dla bety od 0 do 180 stopni
+            // W kolejnych klatkach animacji kąty będą wyznaczane tak, aby były jak najbliżej rozwiązania z poprzedniej klatki
+
+            Vector3 p0 = new Vector3(0, 0, 0);
+
+            Vector3 arm2 = p3 - p1;
+            Vector3 arm3 = p4 - p3;
+            Vector3 arm4 = p5 - p4;
+            // Pierwszy kąt można wyznaczyć jako kąt pomiędzy wektorem w prawo, a aktualnym ramieniem drugim (bo pierwsze ramie obraca drugim po osi Z)
+            //Vector3 right = Vector3.UnitY;
+            //var alfa = Vector3.CalculateAngle(new Vector3(p1.X,p1.Y,0), new Vector3(arm2.X, arm2.Y, 0));
+            var alfa = Math.Atan2(arm2.Y, arm2.X);
+            
+            // Drugi kąt to kąt pomiędzy wektorem pionowym do góry, a wektorem wyznaczonym z punktów p1 i p3 (czyli ramieniem drugim)
+            Vector3 up = Vector3.UnitZ;
+            var beta = Vector3.CalculateAngle(up, arm2);
+
+            Vector4 right = new Vector4(-Vector3.UnitY,0);
+            right *= transformToArm3End;
+            var offset = new Vector3(0, 0, 0.5f);
+            newLine1 = new Line(p4 + offset, p4 + right.Xyz + offset);
+
+            var gamma = Vector3.CalculateAngle(arm2,arm3);
+            var sigma = Vector3.CalculateAngle(right.Xyz, arm4);
+
+            if(CheckGamma(p3,p4)) gamma = -gamma;
+            //var delta = Vector3.CalculateAngle(arm4, arm4);
+            Console.WriteLine($"Arm2: {arm2}");
+            Console.WriteLine("Calculated Angles:");
+            Console.WriteLine($"Alfa: {MathHelper.RadiansToDegrees(alfa)}");
+            Console.WriteLine($"Beta: {MathHelper.RadiansToDegrees(beta)}");
+            Console.WriteLine($"Gamma: {MathHelper.RadiansToDegrees(gamma)}");
+            Console.WriteLine($"Sigma: {MathHelper.RadiansToDegrees(sigma)}");
+
+            // jeśli kąt pomiędzy ramieniem pierwszy a drugim jest dodatni to normalka leci wgłąb sceny (do y dodatniego) a jak jest ujemny to się odwraca
+            //var normal2 = Vector3.Cross(p1 - p0, p4 - p0);
+            //normal2.Normalize();
+
+            //var vec = p3- p1;
+            //var testRes = Vector3.Cross(vec,normal2);
+            //var testRes = Vector3.Dot(vec,normal2);
+            //testRes.Normalize();
+            //Console.WriteLine($"Wynik crossa {testRes}");
+
+            //Vector4 unflippedNomral = new Vector4(0, 1, 0, 0);
+            //unflippedNomral = unflippedNomral * Matrix4.CreateRotationZ((float)alfa);
+            //var testFlip = Flipped(unflippedNomral.Xyz, normal2);
+            //Console.WriteLine($"Flipped = {testFlip}");
+            
+            //var normal3 = Vector3.Cross(new Vector3(vec.X, vec.Y, 0),new Vector3(normal2.X, normal2.Y, 0));
+            //var offset = new Vector3(0, 0, 0.5f);
+            //newLine1 = new Line(p1+ offset, p1 + normal2+ offset);
+            //newLine2 = new Line(p1 + offset, p1 + offset + vec);
+            //newLine3 = new Line(p1 + offset, p1 + offset + normal3);
+        }
+
+        public bool Flipped(Vector3 a, Vector3 b)
+        {
+            var res = true;
+            var deltaX = Math.Abs(a.X - b.X);
+            var deltaY = Math.Abs(a.Y - b.Y);
+            var deltaZ = Math.Abs(a.Z - b.Z);
+            if (deltaX < 0.1 && deltaY < 0.1 && deltaZ < 0.1) res = false;
+            return res;
+        }
+
+        public bool CheckGamma(Vector3 p3, Vector3 p4)  // jak true to gamma na minusie, jak false to na plusie
+        {
+            var res = false;
+            var betaAngle = MathHelper.RadiansToDegrees(a2);
+            var up = (p4 - p3).Z;
+            // jeśli beta jest od 0 do 180, a punkt p4-p3 leci do góry to sigma jest ujemna
+            if (betaAngle>=0 && betaAngle<=180)
+            {
+                if (up > 0) res = true;
+                else res = false;
+            }
+            else
+            {
+                if (up > 0) res = false;
+                else res = true;
+            }
+
+            return res;
         }
     }
 }

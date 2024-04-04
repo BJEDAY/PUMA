@@ -175,29 +175,29 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f,0.5f,0.3f,1.0f));
         if (ImGui.Begin("Puma Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
-            ImGui.SliderAngle("Alfa1", ref puma.a1);
-            if(ImGui.SliderAngle("Alfa2", ref puma.a2))
+            ImGui.SliderAngle("Alfa", ref puma.a1,-180,180);
+            if(ImGui.SliderAngle("Beta", ref puma.a2))
             {
                 //Console.WriteLine($"Angle a is {90 - MathHelper.RadiansToDegrees(puma.a2)}");
                 //Console.WriteLine($"Current end is {puma.currentEnd}");
             }
-            ImGui.SliderAngle("Alfa3", ref puma.a3);
-            ImGui.SliderAngle("Alfa4", ref puma.a4);
-            ImGui.SliderAngle("Alfa5", ref puma.a5);
+            ImGui.SliderAngle("Gamma", ref puma.a3);
+            ImGui.SliderAngle("Sigma", ref puma.a4);
+            ImGui.SliderAngle("Delta", ref puma.a5);
 
-            if(ImGui.SliderFloat("L1",ref puma.len1,0.0f,10.0f))
+            if(ImGui.DragFloat("L1",ref puma.len1,0.0f,10.0f))
             {
                 puma.UpdateLen(1);
             }
-            if (ImGui.SliderFloat("L2", ref puma.len2, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L2", ref puma.len2, 0.0f, 10.0f))
             {
                 puma.UpdateLen(2);
             }
-            if (ImGui.SliderFloat("L3", ref puma.len3, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L3", ref puma.len3, 0.0f, 10.0f))
             {
                 puma.UpdateLen(3);
             }
-            if (ImGui.SliderFloat("L4", ref puma.len4, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L4", ref puma.len4, 0.0f, 10.0f))
             {
                 puma.UpdateLen(4);
             }
