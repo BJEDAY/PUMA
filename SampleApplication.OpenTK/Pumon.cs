@@ -177,7 +177,7 @@ namespace SampleApplication.OpenTK
                 //normLine3.Draw(lineShader, view * perspective);
                 newLine1.Draw(lineShader, view * perspective);
                 newLine2.Draw(lineShader, view * perspective);
-                //newLine3.Draw(lineShader, view * perspective);
+                newLine3.Draw(lineShader, view * perspective);
                 ramie1.Draw(lineShader, view * perspective);
                 ramie4.Draw(lineShader, view * perspective);
                 ramie3.Draw(lineShader, view * perspective);
@@ -268,104 +268,69 @@ namespace SampleApplication.OpenTK
             normal4.Normalize();
             normOrigin = p1 + p3 / 2;
             normLine3 = new Line(normOrigin, normOrigin + normal4);
-            GetAnglesFromPositions(p1, p3, p4, p5);
+            GetAnglesFromPositions(p1, p3, p4, p5, coord);
         }
 
-        public void GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5)
+        public void GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5, CoordinateSystem coord)
         {
             // Pierwsze wyznaczenie kątów będzie z ogarniczeniem dla bety od 0 do 180 stopni
             // W kolejnych klatkach animacji kąty będą wyznaczane tak, aby były jak najbliżej rozwiązania z poprzedniej klatki
 
-            Vector3 p0 = new Vector3(0, 0, 0);
-
             Vector3 arm2 = p3 - p1;
             Vector3 arm3 = p4 - p3;
             Vector3 arm4 = p5 - p4;
-            // Pierwszy kąt można wyznaczyć jako kąt pomiędzy wektorem w prawo, a aktualnym ramieniem drugim (bo pierwsze ramie obraca drugim po osi Z)
-            //Vector3 right = Vector3.UnitY;
-            //var alfa = Vector3.CalculateAngle(new Vector3(p1.X,p1.Y,0), new Vector3(arm2.X, arm2.Y, 0));
+
+            // Wyznaczanie alfy
             var alfa = Math.Atan2(arm2.Y, arm2.X);
             
-            // Drugi kąt to kąt pomiędzy wektorem pionowym do góry, a wektorem wyznaczonym z punktów p1 i p3 (czyli ramieniem drugim)
+            // Wyznaczanie bety
             Vector3 up = Vector3.UnitZ;
             var beta = Vector3.CalculateAngle(up, arm2);
 
-            Vector4 right = new Vector4(-Vector3.UnitY,0);
-            Vector4 SigmaTesterVec = new Vector4(Vector3.UnitX,0);
-            Vector4 GammaTesterVec = new Vector4(-Vector3.UnitY,0);
 
-            var gamma = Vector3.CalculateAngle(arm2, arm3);
-
-            // fajne testy i nawet działa, ale przecież teraz mam dostęp tylko do punktów a nie trasnformacji
-            // trzeba będzie te wektory wygenerować na podstawie punktów 
-            //GammaTesterVec *= transformToArm2End;
-
-            // UWAGA: Jako, że to wektory to nie ma znaczenia ich punkt zaczepienia (on i tak będzie na podstawie jednego z punktów wybranych)
+            // Wyznaczanie gammy
+            // UWAGA: Jako, że to wektory to nie ma znaczenia ich punkt zaczepienia (on i tak będzie na podstawie jednego z punktów wybrany)
             // Także jedyne co to odpowiedni wektorek trzeba odpowiednio pokręcić, a potem obliczyć na jego podstawie pozostałe kąty.
+            Vector4 GammaTesterVec = new Vector4(-Vector3.UnitY,0);
             GammaTesterVec *= Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-180)) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
-
+            var gamma = Vector3.CalculateAngle(arm2, arm3);
             var dotGamma = Vector3.Dot(GammaTesterVec.Xyz, arm3);
             if (dotGamma > -0.001f) gamma = -gamma;
-            //right *= transformToArm3End; 
+            
+            // Wyznaczanie sigmy
+            Vector4 right = new Vector4(-Vector3.UnitY, 0);
             right *= Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
-            //SigmaTesterVec *= transformToArm3End;
-            SigmaTesterVec *= Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90)); ;
-            // także to wyżej do poprawy
-            ////////////////////////////
-            /// POPRAWA:
-            Vector4 rightNew = new Vector4((p4 - p0).Normalized(), 0);
-            rightNew.Z = 0; //rzutowanie na podstawę
-            rightNew *= Matrix4.CreateRotationY(beta);
-            //
-
-            var offset = new Vector3(0, 0, 0.5f);
-            //newLine1 = new Line(p4 + offset, p4 + right.Xyz + offset);
-            newLine1 = new Line(p4 + offset, p4 + right.Xyz + offset);
-            //newLine2 = new Line(p4 + offset, p4 + SigmaTesterVec.Xyz + offset);
-            newLine2 = new Line(p3 + offset, p3 + GammaTesterVec.Xyz + offset);
-
-            
+            Vector4 SigmaTesterVec = new Vector4(Vector3.UnitX, 0);
+            SigmaTesterVec *= Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
             var sigma = Vector3.CalculateAngle(right.Xyz, arm4);
-
-            var dotSigma = Vector3.Dot(SigmaTesterVec.Xyz, arm4);
-            
-
+            var dotSigma = Vector3.Dot(SigmaTesterVec.Xyz, arm4);           
             if (dotSigma < -0.001f) sigma = (float)(Math.PI * 2 - sigma);
-            
 
-            //if (CheckGamma(p3,p4)) gamma = -gamma;
-            //var delta = Vector3.CalculateAngle(arm4, arm4);
-            //Console.WriteLine($"Arm2: {arm2}");
+            // Wyznaczanie delty
+            Vector4 yVec = (new Vector4(0, 1, 0, 0) * coord.GetRotationMatrix);
+            yVec.Normalize();
+            Vector4 rotatedArm5New = new Vector4(1, 0, 0, 0);
+            Vector4 DeltaTesterVec = new Vector4(0, 0, -1, 0);
+            rotatedArm5New *= Matrix4.CreateRotationZ(sigma) * Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            DeltaTesterVec *= Matrix4.CreateRotationZ(sigma) * Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            var delta = Vector3.CalculateAngle(yVec.Xyz, rotatedArm5New.Xyz);
+            var dotDelta = Vector3.Dot(DeltaTesterVec.Xyz, yVec.Xyz);
+            if (dotDelta < -0.001f) delta = (float)(Math.PI * 2 - delta);
+
             Console.WriteLine("Calculated Angles:");
             Console.WriteLine($"Alfa: {Math.Round(MathHelper.RadiansToDegrees(alfa),1)}");
             Console.WriteLine($"Beta: {Math.Round(MathHelper.RadiansToDegrees(beta), 1)}");
             Console.WriteLine($"Gamma: {Math.Round(MathHelper.RadiansToDegrees(gamma), 1)}");
             Console.WriteLine($"Sigma: {Math.Round(MathHelper.RadiansToDegrees(sigma), 1)}");
-            
-            
-            //Console.WriteLine($"Dot Gamma: {dotGamma}");
-            //Console.WriteLine($"Dot Sigma: {dotSigma}");
+            Console.WriteLine($"Delta: {Math.Round(MathHelper.RadiansToDegrees(delta), 1)}");
 
-            // jeśli kąt pomiędzy ramieniem pierwszy a drugim jest dodatni to normalka leci wgłąb sceny (do y dodatniego) a jak jest ujemny to się odwraca
-            //var normal2 = Vector3.Cross(p1 - p0, p4 - p0);
-            //normal2.Normalize();
-
-            //var vec = p3- p1;
-            //var testRes = Vector3.Cross(vec,normal2);
-            //var testRes = Vector3.Dot(vec,normal2);
-            //testRes.Normalize();
-            //Console.WriteLine($"Wynik crossa {testRes}");
-
-            //Vector4 unflippedNomral = new Vector4(0, 1, 0, 0);
-            //unflippedNomral = unflippedNomral * Matrix4.CreateRotationZ((float)alfa);
-            //var testFlip = Flipped(unflippedNomral.Xyz, normal2);
-            //Console.WriteLine($"Flipped = {testFlip}");
-
-            //var normal3 = Vector3.Cross(new Vector3(vec.X, vec.Y, 0),new Vector3(normal2.X, normal2.Y, 0));
-            //var offset = new Vector3(0, 0, 0.5f);
-            //newLine1 = new Line(p1+ offset, p1 + normal2+ offset);
-            //newLine2 = new Line(p1 + offset, p1 + offset + vec);
-            //newLine3 = new Line(p1 + offset, p1 + offset + normal3);
+            var offset = new Vector3(0, 0, 0.5f);
+            //newLine1 = new Line(p4 + offset, p4 + right.Xyz + offset);      
+            newLine1 = new Line(p5 + offset, p5 + DeltaTesterVec.Xyz + offset);      
+            //newLine2 = new Line(p3 + offset, p3 + GammaTesterVec.Xyz + offset);
+            //newLine3 = new Line(p4 + offset, p4 + SigmaTesterVec.Xyz + offset);
+            newLine2 = new Line(p5 + offset, p5 + yVec.Xyz + offset);
+            newLine3 = new Line(p5 + offset, p5 + rotatedArm5New.Xyz + offset);
         }
 
         public bool Flipped(Vector3 a, Vector3 b)
