@@ -181,9 +181,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
                 //Console.WriteLine($"Angle a is {90 - MathHelper.RadiansToDegrees(puma.a2)}");
                 //Console.WriteLine($"Current end is {puma.currentEnd}");
             }
-            ImGui.SliderAngle("Gamma", ref puma.a3);
-            ImGui.SliderAngle("Sigma", ref puma.a4);
-            ImGui.SliderAngle("Delta", ref puma.a5);
+            ImGui.SliderAngle("Gamma", ref puma.a3,-180,180);
+            ImGui.SliderAngle("Sigma", ref puma.a4, 0, 360);
+            ImGui.SliderAngle("Delta", ref puma.a5, 0, 360);
 
             if(ImGui.DragFloat("L1",ref puma.len1,0.0f,10.0f))
             {
