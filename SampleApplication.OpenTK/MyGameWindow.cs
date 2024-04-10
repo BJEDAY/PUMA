@@ -254,6 +254,10 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
                 startCoord.Quat = puma.currentRot;
                 startCoord.QuatData = new Vector4(startCoord.Quat.X, startCoord.Quat.Y, startCoord.Quat.Z, startCoord.Quat.W);
             }
+            if(ImGui.Button("Move PUMA to current start cooord"))
+            {
+                puma.MovePumaToCurrentCoord(startCoord,shader);
+            }
         }
         ImGui.PopStyleColor();
         ImGui.End();

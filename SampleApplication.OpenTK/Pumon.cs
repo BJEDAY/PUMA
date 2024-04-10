@@ -175,9 +175,9 @@ namespace SampleApplication.OpenTK
                 //normLine.Draw(lineShader, view * perspective);
                 //normLine2.Draw(lineShader, view * perspective);
                 //normLine3.Draw(lineShader, view * perspective);
-                newLine1.Draw(lineShader, view * perspective);
-                newLine2.Draw(lineShader, view * perspective);
-                newLine3.Draw(lineShader, view * perspective);
+                //newLine1.Draw(lineShader, view * perspective);
+                //newLine2.Draw(lineShader, view * perspective);
+                //newLine3.Draw(lineShader, view * perspective);
                 ramie1.Draw(lineShader, view * perspective);
                 ramie4.Draw(lineShader, view * perspective);
                 ramie3.Draw(lineShader, view * perspective);
@@ -185,7 +185,7 @@ namespace SampleApplication.OpenTK
             } 
         }
 
-        public void GetPositions(CoordinateSystem coord, Shader line_shader)
+        public (Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5) GetPositions(CoordinateSystem coord, Shader line_shader)
         {
             Vector3 p0 = new Vector3(0, 0, 0);
             Vector3 p1 = p0 + new Vector3(0, 0, c1.Height);
@@ -268,10 +268,15 @@ namespace SampleApplication.OpenTK
             normal4.Normalize();
             normOrigin = p1 + p3 / 2;
             normLine3 = new Line(normOrigin, normOrigin + normal4);
-            GetAnglesFromPositions(p1, p3, p4, p5, coord);
+
+
+
+            //GetAnglesFromPositions(p1, p3, p4, p5, coord);
+
+            return (p1, p3, p4, p5);
         }
 
-        public void GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5, CoordinateSystem coord)
+        public (float alfa, float beta, float gamma, float sigma, float delta) GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5, CoordinateSystem coord)
         {
             // Pierwsze wyznaczenie kątów będzie z ogarniczeniem dla bety od 0 do 180 stopni
             // W kolejnych klatkach animacji kąty będą wyznaczane tak, aby były jak najbliżej rozwiązania z poprzedniej klatki
@@ -324,13 +329,32 @@ namespace SampleApplication.OpenTK
             Console.WriteLine($"Sigma: {Math.Round(MathHelper.RadiansToDegrees(sigma), 1)}");
             Console.WriteLine($"Delta: {Math.Round(MathHelper.RadiansToDegrees(delta), 1)}");
 
-            var offset = new Vector3(0, 0, 0.5f);
+            //var offset = new Vector3(0, 0, 0.5f);
             //newLine1 = new Line(p4 + offset, p4 + right.Xyz + offset);      
-            newLine1 = new Line(p5 + offset, p5 + DeltaTesterVec.Xyz + offset);      
+            //newLine1 = new Line(p5 + offset, p5 + DeltaTesterVec.Xyz + offset);      
             //newLine2 = new Line(p3 + offset, p3 + GammaTesterVec.Xyz + offset);
             //newLine3 = new Line(p4 + offset, p4 + SigmaTesterVec.Xyz + offset);
-            newLine2 = new Line(p5 + offset, p5 + yVec.Xyz + offset);
-            newLine3 = new Line(p5 + offset, p5 + rotatedArm5New.Xyz + offset);
+            //newLine2 = new Line(p5 + offset, p5 + yVec.Xyz + offset);
+            //newLine3 = new Line(p5 + offset, p5 + rotatedArm5New.Xyz + offset);
+
+            return ((float)alfa,beta,gamma,sigma,delta);  
+        }
+
+        public void MovePumaToCurrentCoord(CoordinateSystem coord, Shader line_shader)
+        {
+            var positions = GetPositions(coord,line_shader);
+
+            // Set up arm 2 lenght based on p1 and p3
+            var arm2Dist = Math.Abs(Vector3.Distance(positions.p1, positions.p3));
+            this.c2.Height = arm2Dist;
+            c2.UpdateVAO();
+
+            var angles = GetAnglesFromPositions(positions.p1, positions.p3, positions.p4, positions.p5, coord);
+            this.a1 = angles.alfa;
+            this.a2 = angles.beta;
+            this.a3 = angles.gamma;
+            this.a4 = angles.sigma;
+            this.a5 = angles.delta;
         }
 
         public bool Flipped(Vector3 a, Vector3 b)
