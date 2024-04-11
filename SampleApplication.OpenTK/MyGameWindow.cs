@@ -42,7 +42,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
     bool openPR = false;
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
-    Grid grid; Shader gridShader; Pumon puma; Rect seperatingLine; CoordinateSystem startCoord; CoordinateSystem endCoord;
+    Grid grid; Shader gridShader; Pumon pumaLeft; Pumon pumaRight; Rect seperatingLine; CoordinateSystem startCoord; CoordinateSystem endCoord; SimulationController simulationController;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -76,6 +76,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         SampleExtraFontImpl();
 
         Controller.Update((float)args.Time);
+
+        // TODO: SimulationController deltaTime = args.Time
+        simulationController.deltaTime = (float)args.Time;
     }
 
     protected void SetupObjects()
@@ -86,7 +89,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         cylinder = new Cylinder();
         startCoord = new CoordinateSystem(new Vector3(6,0,6), new Vector3(0,0,0));
         endCoord = new CoordinateSystem(new Vector3(6, -2, 6), new Vector3(0, 0, 0));
-        puma = new Pumon();
+        pumaLeft = new Pumon();
+        pumaRight = new Pumon();
+        simulationController = new SimulationController(ref pumaLeft, ref pumaRight, startCoord, endCoord, shader);
     }
     protected void SetupShaders()
     {
@@ -136,12 +141,13 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         GL.DepthFunc(DepthFunction.Less);
     }
 
+
     protected override void OnRenderFrame(FrameEventArgs args)
     {
         GL.ClearColor(Color.CornflowerBlue);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-
+        simulationController.Run();
         // left screen
         GL.Viewport(0,0,ClientSize.X/2,ClientSize.Y);
         grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
@@ -150,7 +156,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
 
-        puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        pumaLeft.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         seperatingLine.moveRight = true;
         seperatingLine.Render(shader);
         //coord.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
@@ -162,7 +168,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
 
-        puma.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        pumaRight.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         seperatingLine.moveRight = false;
         seperatingLine.Render(shader);
 
@@ -175,31 +181,31 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f,0.5f,0.3f,1.0f));
         if (ImGui.Begin("Puma Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
-            ImGui.SliderAngle("Alfa", ref puma.a1,-180,180);
-            if(ImGui.SliderAngle("Beta", ref puma.a2))
+            ImGui.SliderAngle("Alfa", ref pumaRight.a1,-180,180);
+            if(ImGui.SliderAngle("Beta", ref pumaRight.a2))
             {
-                //Console.WriteLine($"Angle a is {90 - MathHelper.RadiansToDegrees(puma.a2)}");
-                //Console.WriteLine($"Current end is {puma.currentEnd}");
+                //Console.WriteLine($"Angle a is {90 - MathHelper.RadiansToDegrees(pumaLeft.a2)}");
+                //Console.WriteLine($"Current end is {pumaLeft.currentEnd}");
             }
-            ImGui.SliderAngle("Gamma", ref puma.a3,-180,180);
-            ImGui.SliderAngle("Sigma", ref puma.a4, 0, 360);
-            ImGui.SliderAngle("Delta", ref puma.a5, 0, 360);
+            ImGui.SliderAngle("Gamma", ref pumaRight.a3,-180,180);
+            ImGui.SliderAngle("Sigma", ref pumaRight.a4, 0, 360);
+            ImGui.SliderAngle("Delta", ref pumaRight.a5, 0, 360);
 
-            if(ImGui.DragFloat("L1",ref puma.len1,0.0f,10.0f))
+            if(ImGui.DragFloat("L1",ref pumaRight.len1,0.0f,10.0f))
             {
-                puma.UpdateLen(1);
+                pumaLeft.UpdateLen(1);
             }
-            if (ImGui.DragFloat("L2", ref puma.len2, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L2", ref pumaRight.len2, 0.0f, 10.0f))
             {
-                puma.UpdateLen(2);
+                pumaLeft.UpdateLen(2);
             }
-            if (ImGui.DragFloat("L3", ref puma.len3, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L3", ref pumaRight.len3, 0.0f, 10.0f))
             {
-                puma.UpdateLen(3);
+                pumaLeft.UpdateLen(3);
             }
-            if (ImGui.DragFloat("L4", ref puma.len4, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L4", ref pumaRight.len4, 0.0f, 10.0f))
             {
-                puma.UpdateLen(4);
+                pumaLeft.UpdateLen(4);
             }
         }
         ImGui.PopStyleColor();
@@ -246,17 +252,37 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             }
             if(ImGui.Button("Generate positions out of start coord"))
             {
-                puma.GetPositions(startCoord,shader);
+                pumaLeft.GetPositions(startCoord,shader);
             }
-            if(ImGui.Button("Get start coord to current puma pos"))
+            if(ImGui.Button("Get start coord to current pumaLeft pos"))
             {
-                startCoord.Pos = puma.currentEnd.Xyz;
-                startCoord.Quat = puma.currentRot;
+                startCoord.Pos = pumaLeft.currentEnd.Xyz;
+                startCoord.Quat = pumaLeft.currentRot;
                 startCoord.QuatData = new Vector4(startCoord.Quat.X, startCoord.Quat.Y, startCoord.Quat.Z, startCoord.Quat.W);
             }
             if(ImGui.Button("Move PUMA to current start cooord"))
             {
-                puma.MovePumaToCurrentCoord(startCoord,shader);
+                pumaLeft.MovePumaToCurrentCoord(startCoord,shader);
+                pumaRight.MovePumaToCurrentCoord(endCoord,shader);  
+            }
+            if (ImGui.TreeNode("Simulation"))
+            {
+                ImGui.Text("Simulation: "); ImGui.SameLine(); ImGui.Text(simulationController.run.ToString());
+                ImGui.Text("Time: "); ImGui.SameLine(); ImGui.Text(simulationController.currentTime.ToString());
+                if (ImGui.Button("Start"))
+                {
+                    //SimulationController.TestInstance(new Vector2(0, MathHelper.DegreesToRadians(70)));
+                    //SimulationController.path = space.path;
+                    simulationController.Start();
+                    //SimulationController.endNextFrame = false;
+                }
+                ImGui.SameLine();
+                if (ImGui.Button("Pause")) { simulationController.pause = true; simulationController.run = false; }
+                ImGui.SameLine();
+                if (ImGui.Button("Stop")) { simulationController.Stop(); }
+                ImGui.SliderFloat("Time", ref simulationController.animationTime, 0.01f, 10.0f);
+                //ImGui.SliderFloat("Speed", ref SimulationSettings.SimulationSpeed, 0.01f, 1.0f);
+                ImGui.TreePop();
             }
         }
         ImGui.PopStyleColor();
@@ -267,6 +293,15 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         Controller.Render();
 
         SwapBuffers();
+    }
+
+    protected override void OnKeyDown(KeyboardKeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+
+        if (e.Key == Keys.F5) simulationController.Start();
+        if (e.Key == Keys.F6) { simulationController.pause = true; simulationController.run = false; }
+        if (e.Key == Keys.F7) { simulationController.Stop(); }
     }
 
     protected override void OnResize(ResizeEventArgs e)

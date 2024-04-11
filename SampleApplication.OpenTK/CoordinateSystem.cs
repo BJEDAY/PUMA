@@ -92,6 +92,14 @@ namespace SampleApplication.OpenTK
             QuatData = new Vector4(Quat.X,Quat.Y,Quat.Z,Quat.W);
         }
 
+        public CoordinateSystem(Vector3 pos, Quaternion quat) : this()
+        {
+            Pos = pos;
+            Quat = quat;
+            Euler = HelpConverters.ConvertQuaternionToEuler(Quat);
+            QuatData = new Vector4(Quat.X, Quat.Y, Quat.Z, Quat.W);
+        }
+
         public void Render(Shader PhongShader, Matrix4 view, Matrix4 projection, Vector3 camera_pos)
         {
             Right.Render(PhongShader, Right.ModelMatrix * RotationMatrix * TranslationMatrix, view, projection, camera_pos, new Vector3(1f, 0f, 0f));
@@ -128,6 +136,11 @@ namespace SampleApplication.OpenTK
         public void UpdateQuaternionData()
         {
             Quat.X = QuatData.X;Quat.Y = QuatData.Y; Quat.Z = QuatData.Z; Quat.W = QuatData.W;
+        }
+
+        public void UpdateQuatData()
+        {
+            QuatData.X = Quat.X; QuatData.Y = Quat.Y; QuatData.Z = Quat.Z; QuatData.W = Quat.W;
         }
     }
 }

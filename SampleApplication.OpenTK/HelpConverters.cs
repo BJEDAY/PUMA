@@ -10,7 +10,7 @@ namespace SampleApplication.OpenTK
 {
     public static class HelpConverters
     {
-        private static Quaternion QuaternionSlerp(Quaternion q1, Quaternion q2, float t)
+        public static Quaternion QuaternionSlerp(Quaternion q1, Quaternion q2, float t)
         {
             return Quaternion.Slerp(q1, q2, t);
         }
@@ -27,7 +27,7 @@ namespace SampleApplication.OpenTK
             return new Vector3(MathHelper.RadiansToDegrees(res.X), MathHelper.RadiansToDegrees(res.Y), MathHelper.RadiansToDegrees(res.Z));
         }
 
-        private static Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float t)
+        public static Quaternion QuaternionLerp(Quaternion q1, Quaternion q2, float t)
         {
             var x = MathHelper.Lerp(q1.X, q2.X, t);
             var y = MathHelper.Lerp(q1.Y, q2.Y, t);
@@ -37,7 +37,7 @@ namespace SampleApplication.OpenTK
             return res.Normalized();
         }
 
-        private static Vector3 Lerp(Vector3 e1, Vector3 e2, float t)
+        public static Vector3 Lerp(Vector3 e1, Vector3 e2, float t)
         {
             var x = MathHelper.Lerp(e1.X, e2.X, t);
             var y = MathHelper.Lerp(e1.Y, e2.Y, t);

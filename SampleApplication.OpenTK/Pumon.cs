@@ -195,19 +195,19 @@ namespace SampleApplication.OpenTK
             
             Vector3 p4 = p5 - x5 * c4.Height;
 
-            Console.WriteLine($"Vector x5 len: {x5.Length}");
-            Console.WriteLine($"Vector x5: {x5}");
-            Console.WriteLine($"Postion p0: {p0}");
-            Console.WriteLine($"Postion p1: {p1}");
-            Console.WriteLine($"Postion p4: {p4}");
-            Console.WriteLine($"Postion p5: {p5}");
+            //Console.WriteLine($"Vector x5 len: {x5.Length}");
+            //Console.WriteLine($"Vector x5: {x5}");
+            //Console.WriteLine($"Postion p0: {p0}");
+            //Console.WriteLine($"Postion p1: {p1}");
+            //Console.WriteLine($"Postion p4: {p4}");
+            //Console.WriteLine($"Postion p5: {p5}");
 
             //var normal = Vector3.Cross(p1 - p0, p4 - p0);
-            var normal = Vector3.Cross(p1 - p0, p4 - p0);
+            var normal = Vector3.Cross(p1 - p0, p4 - p0);       // każdy cross możliwa osobliwość (bierz z poprzedniej 
             normal.Normalize();
 
-            Console.WriteLine($"Normal is : {normal}");
-            Console.WriteLine($"");
+            //Console.WriteLine($"Normal is : {normal}");
+            //Console.WriteLine($"");
 
 
             lineShader = line_shader;
@@ -222,13 +222,13 @@ namespace SampleApplication.OpenTK
             // test w która stronę leci vec odbędzie się na podstawie sprawdzenia lokalnego układu
             Vector3 up = new Vector3(0, 0, 1);
             var test = Vector3.Cross(up, x5);
-            Console.WriteLine($"Cross up i x5 to: {test}");
+            //Console.WriteLine($"Cross up i x5 to: {test}");
             
             
             var vectorRamie3 = Vector3.Cross(p5 - p4, normal);
 
             vectorRamie3.Normalize();
-            Console.WriteLine($"Cross normalki i ramienia4: {vectorRamie3}");
+            //Console.WriteLine($"Cross normalki i ramienia4: {vectorRamie3}");
             // almost always works
             //if (vectorRamie3.Z >= 0) vectorRamie3 = -vectorRamie3;
             //if(vectorRamie3.X >0 && vectorRamie3.Y<0 && vectorRamie3.Z<0) vectorRamie3 = - vectorRamie3;
@@ -254,20 +254,20 @@ namespace SampleApplication.OpenTK
             ramie2 = new Line(p1+offset,p3+ offset);    
             GenLines = true;
 
-            var normal2 = Vector3.Cross(p1 - p0, p3 - p1);
-            normal2.Normalize();
-            Console.WriteLine($"Normalka pierwsze to: {normal2}");
+            //var normal2 = Vector3.Cross(p1 - p0, p3 - p1);
+            //normal2.Normalize();
+            ////Console.WriteLine($"Normalka pierwsze to: {normal2}");
 
-            var normal3 = Vector3.Cross(p3 - p1, p4 - p3);
-            normal3.Normalize();
-            normLine = new Line(normOrigin, normOrigin + normal2);
-            normOrigin = p3;
-            normLine2 = new Line(normOrigin, normOrigin + normal3);
+            //var normal3 = Vector3.Cross(p3 - p1, p4 - p3);
+            //normal3.Normalize();
+            //normLine = new Line(normOrigin, normOrigin + normal2);
+            //normOrigin = p3;
+            //normLine2 = new Line(normOrigin, normOrigin + normal3);
 
-            var normal4 = Vector3.Cross(p1 - p0,p4 - p0);
-            normal4.Normalize();
-            normOrigin = p1 + p3 / 2;
-            normLine3 = new Line(normOrigin, normOrigin + normal4);
+            //var normal4 = Vector3.Cross(p1 - p0,p4 - p0);
+            //normal4.Normalize();
+            //normOrigin = p1 + p3 / 2;
+            //normLine3 = new Line(normOrigin, normOrigin + normal4);
 
 
 
@@ -286,7 +286,9 @@ namespace SampleApplication.OpenTK
             Vector3 arm4 = p5 - p4;
 
             // Wyznaczanie alfy
-            var alfa = Math.Atan2(arm2.Y, arm2.X);
+            var alfa = Math.Atan2(arm2.Y, arm2.X);      // kiedy y i x 0 to osobliwość
+
+            // jak alfa chce przeskoczyc z 0 na 180 (lub 180 na 0) to trzeba odbić betę na minus
             
             // Wyznaczanie bety
             Vector3 up = Vector3.UnitZ;
@@ -322,12 +324,12 @@ namespace SampleApplication.OpenTK
             var dotDelta = Vector3.Dot(DeltaTesterVec.Xyz, yVec.Xyz);
             if (dotDelta < -0.001f) delta = (float)(Math.PI * 2 - delta);
 
-            Console.WriteLine("Calculated Angles:");
-            Console.WriteLine($"Alfa: {Math.Round(MathHelper.RadiansToDegrees(alfa),1)}");
-            Console.WriteLine($"Beta: {Math.Round(MathHelper.RadiansToDegrees(beta), 1)}");
-            Console.WriteLine($"Gamma: {Math.Round(MathHelper.RadiansToDegrees(gamma), 1)}");
-            Console.WriteLine($"Sigma: {Math.Round(MathHelper.RadiansToDegrees(sigma), 1)}");
-            Console.WriteLine($"Delta: {Math.Round(MathHelper.RadiansToDegrees(delta), 1)}");
+            //Console.WriteLine("Calculated Angles:");
+            //Console.WriteLine($"Alfa: {Math.Round(MathHelper.RadiansToDegrees(alfa),1)}");
+            //Console.WriteLine($"Beta: {Math.Round(MathHelper.RadiansToDegrees(beta), 1)}");
+            //Console.WriteLine($"Gamma: {Math.Round(MathHelper.RadiansToDegrees(gamma), 1)}");
+            //Console.WriteLine($"Sigma: {Math.Round(MathHelper.RadiansToDegrees(sigma), 1)}");
+            //Console.WriteLine($"Delta: {Math.Round(MathHelper.RadiansToDegrees(delta), 1)}");
 
             //var offset = new Vector3(0, 0, 0.5f);
             //newLine1 = new Line(p4 + offset, p4 + right.Xyz + offset);      
