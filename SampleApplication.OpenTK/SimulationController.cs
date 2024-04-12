@@ -44,7 +44,7 @@ namespace SampleApplication.OpenTK
             stop = false;
             currentTime = 0;
             deltaTime = 0;
-            animationTime = 1;
+            animationTime = 10;
             start = s;
             end = e;
             lineShader = shader;

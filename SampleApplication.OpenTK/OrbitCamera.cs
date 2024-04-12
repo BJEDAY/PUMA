@@ -1,0 +1,66 @@
+﻿//using OpenTK.Mathematics;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+
+//const float DEFAULT_DIST = 3;
+//const float DEFAULT_ANGLEX = 0;
+//const float DEFAULT_ANGLEY = 0;
+//Vector3 DEFAULT_LOOKAT = new Vector3(0,0, 0); 
+
+//namespace SampleApplication.OpenTK
+//{
+//    public class OrbitCamera
+//    {
+//        public Matrix4 viewMatrix;
+//        public Matrix4 projectionMatrix;
+//        Vector3 lookAt;
+//        public Vector3 pos;
+//        float aspect,dist,angleX,angleY;
+//        public OrbitCamera()
+//        {
+//            aspect = 1;
+//            UpdateView();
+//            UpdateProj(1);
+//        }
+
+//        public void RotateX(float val)
+//        {
+//            angleX = (float)Math.Clamp(angleX + val, -Math.PI / 2 + 0.001f, Math.PI - 0.001f);
+//            UpdateView();
+//        }
+
+//        public void RotateY(float val) 
+//        {
+//            angleY += val;
+//            UpdateView();
+//        }
+
+//        public void ChangeDist(float val)
+//        {
+//            Dist(dist * (1 + val));
+//        }
+
+//        public void Dist(float val)
+//        {
+//            dist = Math.Clamp(val, 0.05f, 100000.0f);
+//            UpdateView();
+//        }
+//        public void UpdateView()
+//        {
+//            var Eye = new Vector4(0, dist, 0, 1) * Matrix4.CreateRotationZ(angleY) * Matrix4.CreateRotationX(angleX); //*Matrix4.CreateTranslation(lookAt);
+//            var LookAt = new Vector4(lookAt, 1);
+//            var Up = new Vector4(0, 0, 1, 0);
+//            pos = Eye.Xyz;
+//            viewMatrix = Matrix4.LookAt(Eye.Xyz, LookAt.Xyz,Up.Xyz);
+//        }
+
+//        public void UpdateProj(float aspect)
+//        {
+//            this.aspect = aspect;
+//            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(75), aspect, 0.01f, 100.0f);
+//        }
+//    }
+//}

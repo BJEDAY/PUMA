@@ -41,6 +41,8 @@ namespace SampleApplication.OpenTK
         Matrix4 transformToArm2End;
         Matrix4 transformToEnd;
 
+        Vector3 lastVec3;
+
         Vector3 prevP3;
         float prevAlfa, prevBeta;
 
@@ -196,6 +198,12 @@ namespace SampleApplication.OpenTK
             Vector3 p5 = coord.Pos;
             Vector3 x5 = (new Vector4(1, 0, 0, 0) * coord.GetRotationMatrix).Xyz;
             x5.Normalize();
+
+            // to się potem uzupełnia niżej
+            Vector3 p3 = Vector3.Zero;
+            Vector3 alt_p3 = Vector3.Zero; 
+            //////////////////////////////////
+            
             
             Vector3 p4 = p5 - x5 * c4.Height;
 
@@ -229,19 +237,41 @@ namespace SampleApplication.OpenTK
             //Console.WriteLine($"Cross up i x5 to: {test}");
             
             
-            var vectorRamie3 = Vector3.Cross(p5 - p4, normal);
-
+            var vectorRamie3 = Vector3.Cross(p5 - p4, normal);      // jak te dwa wektory są równoległe to się lipa dzieje (obraz zanika :o )
             vectorRamie3.Normalize();
+            if (float.IsNaN(vectorRamie3.X))
+            {
+                if (firstFrame)
+                {
+                    p3 = new Vector3(p4.X, p4.Y, p1.Z);
+                    alt_p3 = new Vector3(p4.X, p4.Y, p1.Z);
+                    lastVec3 = new Vector3(0, 0, p1.Z - p4.Z);
+                    lastVec3.Normalize();
+                }
+                else
+                {
+                    p3 = p4 + lastVec3 * c3.Height;
+                    alt_p3 = p4 - lastVec3 * c3.Height;
+                }
+            }
+            else
+            {
+                p3 = p4 + vectorRamie3 * c3.Height;
+                alt_p3 = p4 - vectorRamie3 * c3.Height;
+                lastVec3 = vectorRamie3;
+            }
+
+            
+
             //Console.WriteLine($"Cross normalki i ramienia4: {vectorRamie3}");
             // almost always works
             //if (vectorRamie3.Z >= 0) vectorRamie3 = -vectorRamie3;
             //if(vectorRamie3.X >0 && vectorRamie3.Y<0 && vectorRamie3.Z<0) vectorRamie3 = - vectorRamie3;
             //if(vectorRamie3.X >0 && vectorRamie3.Y>0 && vectorRamie3.Z>0) vectorRamie3 = - vectorRamie3;
 
-            Vector3 p3 = p4 + vectorRamie3 * c3.Height;
-            Vector3 alt_p3 = p4 - vectorRamie3 * c3.Height;
 
-            if(!firstFrame)
+
+            if (!firstFrame)
             {
                 // choose closest solution to the last one
                 var test1 = Math.Abs(Vector3.Distance(p3, prevP3));
