@@ -41,6 +41,9 @@ namespace SampleApplication.OpenTK
         Matrix4 transformToArm2End;
         Matrix4 transformToEnd;
 
+        Vector3 prevP3;
+        float prevAlfa, prevBeta;
+
         Shader lineShader;
 
         public Vector4 currentEnd;
@@ -91,6 +94,7 @@ namespace SampleApplication.OpenTK
 
             block = new(blockHeight, blockRadius);
             GenLines = false;
+            prevP3 = Vector3.Zero;
         }
 
         public void UpdateLen(int num)
@@ -185,7 +189,7 @@ namespace SampleApplication.OpenTK
             } 
         }
 
-        public (Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5) GetPositions(CoordinateSystem coord, Shader line_shader)
+        public (Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5) GetPositions(CoordinateSystem coord, Shader line_shader, bool firstFrame)
         {
             Vector3 p0 = new Vector3(0, 0, 0);
             Vector3 p1 = p0 + new Vector3(0, 0, c1.Height);
@@ -236,18 +240,32 @@ namespace SampleApplication.OpenTK
 
             Vector3 p3 = p4 + vectorRamie3 * c3.Height;
             Vector3 alt_p3 = p4 - vectorRamie3 * c3.Height;
-            var test1 = Math.Abs(Vector3.Distance(p3, p1));
-            var test2 = Math.Abs(Vector3.Distance(alt_p3, p1));
 
-            //var VecLen = (Vector3 a) => { return Math.Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z); };
-
-            // the result is chosen the way that lenght of second arm is lowest possible 
-            // in the future there could be option to choose alternative option
-
-            if (test1 > test2) 
+            if(!firstFrame)
             {
-                p3 = alt_p3;
+                // choose closest solution to the last one
+                var test1 = Math.Abs(Vector3.Distance(p3, prevP3));
+                var test2 = Math.Abs(Vector3.Distance(alt_p3, prevP3));
+                if (test1 > test2)
+                {
+                    p3 = alt_p3;
+                }
+                prevP3 = p3;
             }
+            else
+            {
+                var test1 = Math.Abs(Vector3.Distance(p3, p1));
+                var test2 = Math.Abs(Vector3.Distance(alt_p3, p1));
+                //var VecLen = (Vector3 a) => { return Math.Sqrt(a.X * a.X + a.Y * a.Y + a.Z * a.Z); };
+                // the result is chosen the way that lenght of second arm is lowest possible 
+                // in the future there could be option to choose alternative option
+                if (test1 > test2)
+                {
+                    p3 = alt_p3;
+                }
+                prevP3 = p3;  
+            }
+
 
             ramie3 = new Line(p3 + offset, p4 + offset);
 
@@ -276,7 +294,7 @@ namespace SampleApplication.OpenTK
             return (p1, p3, p4, p5);
         }
 
-        public (float alfa, float beta, float gamma, float sigma, float delta) GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5, CoordinateSystem coord)
+        public (float alfa, float beta, float gamma, float sigma, float delta) GetAnglesFromPositions(Vector3 p1, Vector3 p3, Vector3 p4, Vector3 p5, CoordinateSystem coord, bool firstFrame)
         {
             // Pierwsze wyznaczenie kątów będzie z ogarniczeniem dla bety od 0 do 180 stopni
             // W kolejnych klatkach animacji kąty będą wyznaczane tak, aby były jak najbliżej rozwiązania z poprzedniej klatki
@@ -294,6 +312,29 @@ namespace SampleApplication.OpenTK
             Vector3 up = Vector3.UnitZ;
             var beta = Vector3.CalculateAngle(up, arm2);
 
+            // jak odbite to niech tak zostanie
+            if (!firstFrame && prevBeta < 0)
+            {
+                beta = -beta;
+
+                // alfa musi zostać odpowiednio poprawione (obrócone o 180 stopni, bo z atan2 wyjdzie inny wynik)
+                if (alfa < 0) alfa += Math.PI;
+                else alfa -= Math.PI;
+            }
+
+            // samo odbicie
+            if (!firstFrame && Math.Abs((float)alfa - prevAlfa) > Math.PI / 2) // jak nagle alfa przeskakuje o ponad 90 stopni (ogólnie chodzi o przypadek gdy to jest 180 przeskok)
+            {
+                // beta się odbija
+                beta = -beta;
+
+                // alfa musi zostać odpowiednio poprawione (obrócone o 180 stopni, bo z atan2 wyjdzie inny wynik)
+                if (alfa < 0) alfa += Math.PI;
+                else alfa -= Math.PI;
+            }
+
+            //// jak jest przeskok alfy to trzeba odbic bete na minus a alfe zmienic albo o +Math.PI jak jest ujemna lub -Math.Pi jak jest dodatnia
+            prevAlfa = (float)alfa; prevBeta = beta; 
 
             // Wyznaczanie gammy
             // UWAGA: Jako, że to wektory to nie ma znaczenia ich punkt zaczepienia (on i tak będzie na podstawie jednego z punktów wybrany)
@@ -303,6 +344,7 @@ namespace SampleApplication.OpenTK
             var gamma = Vector3.CalculateAngle(arm2, arm3);
             var dotGamma = Vector3.Dot(GammaTesterVec.Xyz, arm3);
             if (dotGamma > -0.001f) gamma = -gamma;
+
             
             // Wyznaczanie sigmy
             Vector4 right = new Vector4(-Vector3.UnitY, 0);
@@ -342,16 +384,16 @@ namespace SampleApplication.OpenTK
             return ((float)alfa,beta,gamma,sigma,delta);  
         }
 
-        public void MovePumaToCurrentCoord(CoordinateSystem coord, Shader line_shader)
+        public void MovePumaToCurrentCoord(CoordinateSystem coord, Shader line_shader, bool firstFrame)
         {
-            var positions = GetPositions(coord,line_shader);
+            var positions = GetPositions(coord,line_shader, firstFrame);
 
             // Set up arm 2 lenght based on p1 and p3
             var arm2Dist = Math.Abs(Vector3.Distance(positions.p1, positions.p3));
             this.c2.Height = arm2Dist;
             c2.UpdateVAO();
 
-            var angles = GetAnglesFromPositions(positions.p1, positions.p3, positions.p4, positions.p5, coord);
+            var angles = GetAnglesFromPositions(positions.p1, positions.p3, positions.p4, positions.p5, coord, firstFrame);
             this.a1 = angles.alfa;
             this.a2 = angles.beta;
             this.a3 = angles.gamma;
@@ -369,6 +411,8 @@ namespace SampleApplication.OpenTK
             return res;
         }
 
+
+        // Funckcja jest do kitu
         public bool CheckGamma(Vector3 p3, Vector3 p4)  // jak true to gamma na minusie, jak false to na plusie
         {
             var res = false;

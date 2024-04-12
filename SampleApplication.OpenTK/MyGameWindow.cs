@@ -18,6 +18,12 @@ struct ViewPerspectiveSettings
     public float fov, f, n;
     public ViewPerspectiveSettings(float Fov, float F, float N) { fov = Fov; f = F; n = N; }
 }
+
+struct GlobalPumaLengths
+{
+    public float l1, l2, l3, l4;
+    public GlobalPumaLengths(float val) {  l1 = val; l2 = val; l3 = val;l4 = val; }
+}
 // TESTING THINGS
 internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 {
@@ -43,6 +49,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
     Grid grid; Shader gridShader; Pumon pumaLeft; Pumon pumaRight; Rect seperatingLine; CoordinateSystem startCoord; CoordinateSystem endCoord; SimulationController simulationController;
+    GlobalPumaLengths GlobalPumaLengths;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -83,6 +90,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     protected void SetupObjects()
     {
+        GlobalPumaLengths = new GlobalPumaLengths(3f);
         grid = new Grid();
         line = new Line();
         seperatingLine = new Rect();
@@ -191,20 +199,32 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             ImGui.SliderAngle("Sigma", ref pumaRight.a4, 0, 360);
             ImGui.SliderAngle("Delta", ref pumaRight.a5, 0, 360);
 
-            if(ImGui.DragFloat("L1",ref pumaRight.len1,0.0f,10.0f))
+            if(ImGui.DragFloat("L1",ref GlobalPumaLengths.l1,0.0f,10.0f))
             {
+                pumaRight.len1 = GlobalPumaLengths.l1;
+                pumaLeft.len1 = GlobalPumaLengths.l1;
+                pumaRight.UpdateLen(1);
                 pumaLeft.UpdateLen(1);
             }
-            if (ImGui.DragFloat("L2", ref pumaRight.len2, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L2", ref GlobalPumaLengths.l2, 0.0f, 10.0f))
             {
+                pumaRight.len2 = GlobalPumaLengths.l2;
+                pumaLeft.len2 = GlobalPumaLengths.l2;
+                pumaRight.UpdateLen(2);
                 pumaLeft.UpdateLen(2);
             }
-            if (ImGui.DragFloat("L3", ref pumaRight.len3, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L3", ref GlobalPumaLengths.l3, 0.0f, 10.0f))
             {
+                pumaRight.len3 = GlobalPumaLengths.l3;
+                pumaLeft.len3 = GlobalPumaLengths.l3;
+                pumaRight.UpdateLen(3);
                 pumaLeft.UpdateLen(3);
             }
-            if (ImGui.DragFloat("L4", ref pumaRight.len4, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L4", ref GlobalPumaLengths.l4, 0.0f, 10.0f))
             {
+                pumaRight.len4 = GlobalPumaLengths.l4;
+                pumaLeft.len4 = GlobalPumaLengths.l4;
+                pumaRight.UpdateLen(4);
                 pumaLeft.UpdateLen(4);
             }
         }
@@ -252,7 +272,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             }
             if(ImGui.Button("Generate positions out of start coord"))
             {
-                pumaLeft.GetPositions(startCoord,shader);
+                pumaLeft.GetPositions(startCoord,shader,true);
             }
             if(ImGui.Button("Get start coord to current pumaLeft pos"))
             {
@@ -262,8 +282,8 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             }
             if(ImGui.Button("Move PUMA to current start cooord"))
             {
-                pumaLeft.MovePumaToCurrentCoord(startCoord,shader);
-                pumaRight.MovePumaToCurrentCoord(endCoord,shader);  
+                pumaLeft.MovePumaToCurrentCoord(startCoord,shader,true);
+                pumaRight.MovePumaToCurrentCoord(endCoord,shader,true);  
             }
             if (ImGui.TreeNode("Simulation"))
             {

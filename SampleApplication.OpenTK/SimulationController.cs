@@ -31,6 +31,10 @@ namespace SampleApplication.OpenTK
         Config endConfig;
 
 
+        // Information for PUMA
+        bool firstFrame;
+
+
         // Inversed Kinematic Animaton
 
         public SimulationController(ref Pumon pumaL,  ref Pumon pumaR, CoordinateSystem s, CoordinateSystem e, Shader shader)
@@ -50,12 +54,12 @@ namespace SampleApplication.OpenTK
 
         public void UpdateConfigs()
         {
-            var startPositions = pumaRight.GetPositions(start, lineShader);
-            var startAngles = pumaRight.GetAnglesFromPositions(startPositions.p1,startPositions.p3,startPositions.p4,startPositions.p5,start);
+            var startPositions = pumaRight.GetPositions(start, lineShader, firstFrame);
+            var startAngles = pumaRight.GetAnglesFromPositions(startPositions.p1,startPositions.p3,startPositions.p4,startPositions.p5,start, true);
             FillConfig(ref startConfig, startPositions.p1, startPositions.p3, startAngles);
 
-            var endPositions = pumaRight.GetPositions(end, lineShader);
-            var endAngles = pumaRight.GetAnglesFromPositions(endPositions.p1,endPositions.p3,endPositions.p4,endPositions.p5,end);
+            var endPositions = pumaRight.GetPositions(end, lineShader, firstFrame);
+            var endAngles = pumaRight.GetAnglesFromPositions(endPositions.p1,endPositions.p3,endPositions.p4,endPositions.p5,end, true);
 
             FillConfig(ref endConfig, endPositions.p1, endPositions.p3, endAngles);
             Console.WriteLine("Before adjusting end angles:");
@@ -107,6 +111,7 @@ namespace SampleApplication.OpenTK
             run = true;
             pause = false;
             stop = false;
+            firstFrame = true;
         }
 
         public void Stop()
@@ -123,6 +128,14 @@ namespace SampleApplication.OpenTK
             pumaLeft.a5 = startConfig.delta;
             pumaLeft.len2 = startConfig.arm2;
             pumaLeft.UpdateLen(2);
+
+            pumaRight.a1 = startConfig.alfa;
+            pumaRight.a2 = startConfig.beta;
+            pumaRight.a3 = startConfig.gamma;
+            pumaRight.a4 = startConfig.sigma;
+            pumaRight.a5 = startConfig.delta;
+            pumaRight.len2 = startConfig.arm2;
+            pumaRight.UpdateLen(2);
         }
 
         float Lerp(float firstFloat, float secondFloat, float by)
@@ -182,7 +195,8 @@ namespace SampleApplication.OpenTK
                 var currentQuat = HelpConverters.QuaternionSlerp(start.Quat,end.Quat,(float)currentTime / animationTime);
                 var currentPos = Lerp(start.Pos, end.Pos, (float)currentTime /animationTime);
                 var currentCoord = new CoordinateSystem(currentPos,currentQuat);
-                pumaRight.MovePumaToCurrentCoord(currentCoord, lineShader);
+                pumaRight.MovePumaToCurrentCoord(currentCoord, lineShader, firstFrame);
+                if(firstFrame) firstFrame = false;
             }
         }
     }
