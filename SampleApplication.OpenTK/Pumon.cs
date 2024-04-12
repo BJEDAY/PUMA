@@ -184,10 +184,10 @@ namespace SampleApplication.OpenTK
                 //newLine1.Draw(lineShader, view * perspective);
                 //newLine2.Draw(lineShader, view * perspective);
                 //newLine3.Draw(lineShader, view * perspective);
-                ramie1.Draw(lineShader, view * perspective);
-                ramie4.Draw(lineShader, view * perspective);
-                ramie3.Draw(lineShader, view * perspective);
-                ramie2.Draw(lineShader, view * perspective);
+                //ramie1.Draw(lineShader, view * perspective);
+                //ramie4.Draw(lineShader, view * perspective);
+                //ramie3.Draw(lineShader, view * perspective);
+                //ramie2.Draw(lineShader, view * perspective);
             } 
         }
 

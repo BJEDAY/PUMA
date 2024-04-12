@@ -27,10 +27,6 @@ struct GlobalPumaLengths
 // TESTING THINGS
 internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 {
-    private static readonly double[] SampleData1 = Enumerable.Range(0, 256).Select(s => Math.Cos(s / 2.0d / Math.PI)).ToArray();
-
-    private static readonly double[] SampleData2 = Enumerable.Range(0, 256).Select(s => Math.Sin(s / 2.0d / Math.PI)).ToArray();
-
     private readonly ImGuiController Controller;
 
     private readonly ImPlotContext ImPlotContext;
@@ -49,7 +45,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
     Grid grid; Shader gridShader; Pumon pumaLeft; Pumon pumaRight; Rect seperatingLine; CoordinateSystem startCoord; CoordinateSystem endCoord; SimulationController simulationController;
-    GlobalPumaLengths GlobalPumaLengths; //OrbitCamera OrbitCamera;
+    GlobalPumaLengths GlobalPumaLengths; OrbitCamera OrbitCamera;
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -141,9 +137,9 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         perspectiveSettings = new ViewPerspectiveSettings(45.0f, 30.0f, 0.5f);
         camera.UpdateProjectionMatrix((float)ClientSize.X/2, (float)ClientSize.Y, perspectiveSettings.fov, perspectiveSettings.n, perspectiveSettings.f);
 
-        //OrbitCamera = new OrbitCamera();
-        //var aspect = ((float)ClientSize.X / 2) / ((float)ClientSize.Y);
-        //OrbitCamera.UpdateProj(aspect);
+        OrbitCamera = new OrbitCamera();
+        var aspect = ((float)ClientSize.X / 2) / ((float)ClientSize.Y);
+        OrbitCamera.UpdateProj(aspect);
     }
 
     protected void SetupGL()
@@ -161,54 +157,54 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         simulationController.Run();
 
-        // left screen
-        GL.Viewport(0, 0, ClientSize.X / 2, ClientSize.Y);
-        grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
-
-        //startCoord.RenderUsingEuler(phongShader, camera.viewMatrix,camera.projectionMatrix,camera.cameraPosition);
-        startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-        endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-
-        pumaLeft.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-        seperatingLine.moveRight = true;
-        seperatingLine.Render(shader);
-        //coord.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-
-        // right screen
-        GL.Viewport(ClientSize.X / 2, 0, ClientSize.X / 2, ClientSize.Y);
-        grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
-
-        startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-        endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-
-        pumaRight.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
-        seperatingLine.moveRight = false;
-        seperatingLine.Render(shader);
-
-
         //// left screen
         //GL.Viewport(0, 0, ClientSize.X / 2, ClientSize.Y);
-        //grid.Draw(gridShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix);
+        //grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
 
         ////startCoord.RenderUsingEuler(phongShader, camera.viewMatrix,camera.projectionMatrix,camera.cameraPosition);
-        //startCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
-        //endCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        //startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        //endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
 
-        //pumaLeft.Render(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        //pumaLeft.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         //seperatingLine.moveRight = true;
         //seperatingLine.Render(shader);
         ////coord.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
 
         //// right screen
         //GL.Viewport(ClientSize.X / 2, 0, ClientSize.X / 2, ClientSize.Y);
-        //grid.Draw(gridShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix);
+        //grid.Draw(gridShader, camera.viewMatrix, camera.projectionMatrix);
 
-        //startCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
-        //endCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        //startCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+        //endCoord.RenderUsingQuat(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
 
-        //pumaRight.Render(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        //pumaRight.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
         //seperatingLine.moveRight = false;
         //seperatingLine.Render(shader);
+
+
+        // left screen
+        GL.Viewport(0, 0, ClientSize.X / 2, ClientSize.Y);
+        grid.Draw(gridShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix);
+
+        //startCoord.RenderUsingEuler(phongShader, camera.viewMatrix,camera.projectionMatrix,camera.cameraPosition);
+        startCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        endCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+
+        pumaLeft.Render(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        seperatingLine.moveRight = true;
+        seperatingLine.Render(shader);
+        //coord.Render(phongShader, camera.viewMatrix, camera.projectionMatrix, camera.cameraPosition);
+
+        // right screen
+        GL.Viewport(ClientSize.X / 2, 0, ClientSize.X / 2, ClientSize.Y);
+        grid.Draw(gridShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix);
+
+        startCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        endCoord.RenderUsingQuat(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+
+        pumaRight.Render(phongShader, OrbitCamera.viewMatrix, OrbitCamera.projectionMatrix, OrbitCamera.pos);
+        seperatingLine.moveRight = false;
+        seperatingLine.Render(shader);
 
         // whole screen
         GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
@@ -216,7 +212,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 250), ImGuiCond.Once);
         ImGui.SetNextWindowPos(new System.Numerics.Vector2(400, 0));
 
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f,0.5f,0.3f,1.0f));
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, Color.DarkSlateGray.ToVector4());
         if (ImGui.Begin("Puma Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
             ImGui.SliderAngle("Alfa", ref pumaRight.a1,-180,180);
@@ -263,7 +259,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(400, 250), ImGuiCond.Once);
         ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);   
-        ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.2f, 0.5f, 0.3f, 1.0f));
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, Color.DarkSlateGray.ToVector4());
         if (ImGui.Begin("Config Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
             if(ImGui.TreeNode("Start"))
@@ -300,21 +296,25 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
                 }
                 ImGui.TreePop();
             }
-            if(ImGui.Button("Generate positions out of start coord"))
+            if(ImGui.TreeNode("Buttons"))
             {
-                pumaLeft.GetPositions(startCoord,shader,true);
-                pumaRight.GetPositions(startCoord,shader,true);
-            }
-            if(ImGui.Button("Get start coord to current pumaLeft pos"))
-            {
-                startCoord.Pos = pumaRight.currentEnd.Xyz;
-                startCoord.Quat = pumaRight.currentRot;
-                startCoord.QuatData = new Vector4(startCoord.Quat.X, startCoord.Quat.Y, startCoord.Quat.Z, startCoord.Quat.W);
-            }
-            if(ImGui.Button("Move PUMA to current start cooord"))
-            {
-                pumaLeft.MovePumaToCurrentCoord(startCoord,shader,true);
-                pumaRight.MovePumaToCurrentCoord(endCoord,shader,true);  
+                if (ImGui.Button("Generate positions out of start coord"))
+                {
+                    pumaLeft.GetPositions(startCoord, shader, true);
+                    pumaRight.GetPositions(startCoord, shader, true);
+                }
+                if (ImGui.Button("Get start coord to current pumaLeft pos"))
+                {
+                    startCoord.Pos = pumaRight.currentEnd.Xyz;
+                    startCoord.Quat = pumaRight.currentRot;
+                    startCoord.QuatData = new Vector4(startCoord.Quat.X, startCoord.Quat.Y, startCoord.Quat.Z, startCoord.Quat.W);
+                }
+                if (ImGui.Button("Move PUMA to current start cooord"))
+                {
+                    pumaLeft.MovePumaToCurrentCoord(startCoord, shader, true);
+                    pumaRight.MovePumaToCurrentCoord(endCoord, shader, true);
+                }
+                ImGui.TreePop();
             }
             if (ImGui.TreeNode("Simulation"))
             {
@@ -371,19 +371,19 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             var delta = e.Delta.Y;
             camera.ChangeDistance((float)(delta * 0.01f));
 
-            //OrbitCamera.ChangeDist((float)(delta * 0.01f));
+            OrbitCamera.ChangeDist((float)(delta * 0.005f));
         }
 
         if (this.MouseState[MouseButton.Middle])
         {
-            double speed = 0.2;
+            double speed = 0.008;
             var pos = e.Position;
             double deltaY = pos.Y - prev_mouse.Y;
             double deltaX = pos.X - prev_mouse.X;
             camera.UpdateRotation((float)(deltaY * speed), (float)(deltaX * speed));
 
-            //OrbitCamera.RotateX((float)(deltaX * speed));
-            //OrbitCamera.RotateY((float)(deltaY * speed));
+            OrbitCamera.RotateX((float)(deltaY * speed));
+            OrbitCamera.RotateY((float)(deltaX * speed));
         }
 
 
