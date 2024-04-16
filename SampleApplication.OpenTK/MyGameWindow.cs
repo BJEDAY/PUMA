@@ -45,7 +45,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
 
     Shader shader; Camera camera; ViewPerspectiveSettings perspectiveSettings; Line line; Shader phongShader; Cylinder cylinder, cylinder2; Vector2 prev_mouse; Vector3 lightColor; Vector3 lightPos;
     Grid grid; Shader gridShader; Pumon pumaLeft; Pumon pumaRight; Rect seperatingLine; CoordinateSystem startCoord; CoordinateSystem endCoord; SimulationController simulationController;
-    GlobalPumaLengths GlobalPumaLengths; OrbitCamera OrbitCamera;
+    GlobalPumaLengths GlobalPumaLengths; OrbitCamera OrbitCamera; 
     public MyGameWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
         : base(gameWindowSettings, nativeWindowSettings)
     {
@@ -215,6 +215,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         ImGui.PushStyleColor(ImGuiCol.WindowBg, Color.DarkSlateGray.ToVector4());
         if (ImGui.Begin("Puma Settings", ref openPR, ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
         {
+            ImGui.BeginDisabled(simulationController.run);
             ImGui.SliderAngle("Alfa", ref pumaRight.a1,-180,180);
             if(ImGui.SliderAngle("Beta", ref pumaRight.a2))
             {
@@ -232,12 +233,15 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
                 pumaRight.UpdateLen(1);
                 pumaLeft.UpdateLen(1);
             }
-            if (ImGui.DragFloat("L2", ref GlobalPumaLengths.l2, 0.0f, 10.0f))
+            if (ImGui.DragFloat("L2", ref pumaRight.len2, 0.0f, 10.0f))
             {
-                pumaRight.len2 = GlobalPumaLengths.l2;
-                pumaLeft.len2 = GlobalPumaLengths.l2;
-                pumaRight.UpdateLen(2);
-                pumaLeft.UpdateLen(2);
+                if (!simulationController.run)
+                {
+                    GlobalPumaLengths.l2 = pumaRight.len2;
+                    pumaLeft.len2 = GlobalPumaLengths.l2;
+                    pumaRight.UpdateLen(2);
+                    pumaLeft.UpdateLen(2);
+                }
             }
             if (ImGui.DragFloat("L3", ref GlobalPumaLengths.l3, 0.0f, 10.0f))
             {
@@ -253,6 +257,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
                 pumaRight.UpdateLen(4);
                 pumaLeft.UpdateLen(4);
             }
+            ImGui.EndDisabled();
         }
         ImGui.PopStyleColor();
         ImGui.End();
