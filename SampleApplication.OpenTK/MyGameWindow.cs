@@ -371,12 +371,12 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
             var delta = e.Delta.Y;
             camera.ChangeDistance((float)(delta * 0.01f));
 
-            OrbitCamera.ChangeDist((float)(delta * 0.005f));
+            OrbitCamera.ChangeDist((float)(delta * 0.001f));
         }
 
         if (this.MouseState[MouseButton.Middle])
         {
-            double speed = 0.008;
+            double speed = 0.002;
             var pos = e.Position;
             double deltaY = pos.Y - prev_mouse.Y;
             double deltaX = pos.X - prev_mouse.X;

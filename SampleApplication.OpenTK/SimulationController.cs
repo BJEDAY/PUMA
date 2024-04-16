@@ -54,11 +54,11 @@ namespace SampleApplication.OpenTK
 
         public void UpdateConfigs()
         {
-            var startPositions = pumaRight.GetPositions(start, lineShader, firstFrame);
+            var startPositions = pumaRight.GetPositions(start, lineShader, true);
             var startAngles = pumaRight.GetAnglesFromPositions(startPositions.p1,startPositions.p3,startPositions.p4,startPositions.p5,start, true);
             FillConfig(ref startConfig, startPositions.p1, startPositions.p3, startAngles);
 
-            var endPositions = pumaRight.GetPositions(end, lineShader, firstFrame);
+            var endPositions = pumaRight.GetPositions(end, lineShader, true);
             var endAngles = pumaRight.GetAnglesFromPositions(endPositions.p1,endPositions.p3,endPositions.p4,endPositions.p5,end, true);
 
             FillConfig(ref endConfig, endPositions.p1, endPositions.p3, endAngles);

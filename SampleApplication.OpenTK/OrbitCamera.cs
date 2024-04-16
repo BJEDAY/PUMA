@@ -61,7 +61,7 @@ namespace SampleApplication.OpenTK
         public void UpdateProj(float aspect)
         {
             this.aspect = aspect;
-            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(75), aspect, 0.01f, 100.0f);
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60), aspect, 0.01f, 100.0f);
         }
     }
 }
