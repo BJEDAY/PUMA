@@ -269,9 +269,10 @@ namespace SampleApplication.OpenTK
 
             // Wyznaczanie sigmy
             Vector4 right = new Vector4(-Vector3.UnitY, 0);
-            right *= Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            var currentTransform = Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            right *= currentTransform;
             Vector4 SigmaTesterVec = new Vector4(Vector3.UnitX, 0);
-            SigmaTesterVec *= Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            SigmaTesterVec *= currentTransform;
             var sigma = Vector3.CalculateAngle(right.Xyz, arm4);
             var dotSigma = Vector3.Dot(SigmaTesterVec.Xyz, arm4);           
             if (dotSigma < -0.001f) sigma = (float)(Math.PI * 2 - sigma);
@@ -282,13 +283,12 @@ namespace SampleApplication.OpenTK
             yVec.Normalize();
             Vector4 rotatedArm5New = new Vector4(1, 0, 0, 0);
             Vector4 DeltaTesterVec = new Vector4(0, 0, -1, 0);
-            rotatedArm5New *= Matrix4.CreateRotationZ(sigma) * Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
-            DeltaTesterVec *= Matrix4.CreateRotationZ(sigma) * Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            currentTransform = Matrix4.CreateRotationZ(sigma) * Matrix4.CreateRotationX(gamma) * Matrix4.CreateRotationX(beta) * Matrix4.CreateRotationZ((float)alfa) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(90));
+            rotatedArm5New *= currentTransform;
+            DeltaTesterVec *= currentTransform;
             var delta = Vector3.CalculateAngle(yVec.Xyz, rotatedArm5New.Xyz);
             var dotDelta = Vector3.Dot(DeltaTesterVec.Xyz, yVec.Xyz);
             if (dotDelta < -0.001f) delta = (float)(Math.PI * 2 - delta);
-
-
 
             return ((float)alfa,beta,gamma,sigma,delta);  
         }

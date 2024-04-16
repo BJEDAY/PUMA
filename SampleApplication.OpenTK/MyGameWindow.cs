@@ -217,7 +217,7 @@ internal sealed class MyGameWindow : GameWindowBaseWithDebugContext
         {
             ImGui.BeginDisabled(simulationController.run);
             ImGui.SliderAngle("Alfa", ref pumaRight.a1,-180,180);
-            if(ImGui.SliderAngle("Beta", ref pumaRight.a2))
+            if(ImGui.SliderAngle("Beta", ref pumaRight.a2,-180,180))
             {
                 //Console.WriteLine($"Angle a is {90 - MathHelper.RadiansToDegrees(pumaLeft.a2)}");
                 //Console.WriteLine($"Current end is {pumaLeft.currentEnd}");
