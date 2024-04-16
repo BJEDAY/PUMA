@@ -22,19 +22,6 @@ namespace SampleApplication.OpenTK
         public Matrix4 RotationC2;
         public Matrix4 TranslationC3;
         public Matrix4 RotationC3;
-        //bool verticalUp;
-
-        //public bool GenLines;
-        //Line normLine;
-        //Line normLine2;
-        //Line normLine3;
-        //Line ramie1;
-        //Line ramie2;
-        //Line ramie3;
-        //Line ramie4;
-        //Line crossVec;
-
-        //Line newLine1, newLine2, newLine3;
 
         Matrix4 transform;
 
@@ -179,13 +166,14 @@ namespace SampleApplication.OpenTK
             {
                 if (firstFrame)
                 {
-                    p3 = new Vector3(p4.X, p4.Y, p1.Z);
-                    alt_p3 = new Vector3(p4.X, p4.Y, p1.Z);
-                    if (p4.X == p1.X && p4.Y == p1.Y)        //jak taki case to jest pionowo do góry puma
-                    {
-                        p3.Z = p5.Z - len3;
-                        alt_p3.Z = p5.Z - len3;
-                    }
+                    p3 = new Vector3(p4.X, p4.Y, p4.Z - len3);
+                    alt_p3 = new Vector3(p4.X, p4.Y, p4.Z - len3);
+
+                    //if (p4.X == p1.X && p4.Y == p1.Y)        //jak taki case to jest pionowo do góry puma
+                    //{
+                    //    p3.Z = p5.Z - len3;
+                    //    alt_p3.Z = p5.Z - len3;
+                    //}
                     lastVec3 = new Vector3(0, 0, p1.Z - p3.Z);
                     lastVec3.Normalize();
                 }
@@ -323,6 +311,12 @@ namespace SampleApplication.OpenTK
             this.a5 = angles.delta;
         }
 
+
+
+
+
+
+
         //public bool Flipped(Vector3 a, Vector3 b)
         //{
         //    var res = true;
@@ -444,5 +438,17 @@ namespace SampleApplication.OpenTK
         ///
         //TranslationC1 = Matrix4.CreateTranslation(0,0,0);
         //RotationC1 = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(0));
+
+        //public bool GenLines;
+        //Line normLine;
+        //Line normLine2;
+        //Line normLine3;
+        //Line ramie1;
+        //Line ramie2;
+        //Line ramie3;
+        //Line ramie4;
+        //Line crossVec;
+
+        //Line newLine1, newLine2, newLine3;
     }
 }
