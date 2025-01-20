@@ -1,3 +1,25 @@
+The application visualizes movement of robot consisting of 5 arms with 6 degrees of freedom for
+given initial and final configuration. The method is based on solving the inverse kinematics problem
+using the geometric method. In case of encountering singular point the application chooses solution
+closest to that from previous frame, thus maintaining continuity.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/602a170a-73d5-4468-8be0-a9462e9b16ff" width =700 height=auto>
+</p>
+
+The animation is divided into two parts. The left one is made by calculating parameters for initial and
+final configuration using inverse kinematics and then every other frame uses values from their linear
+interpolation. The right one calculates new solution for every frame by using new quaternion
+determined from spherical interpolation of initial and final quaternion.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1ed754fd-3b3b-46cb-81fc-ccdc1bd5c7a8" width =700 height=auto>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9de948ff-b55f-4fe7-9c4a-c2c00f76188f" width =700 height=auto>
+</p>
+
 
 # DearImGui
 
