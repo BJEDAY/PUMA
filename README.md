@@ -20,6 +20,7 @@ determined from spherical interpolation of initial and final quaternion.
   <img src="https://github.com/user-attachments/assets/9de948ff-b55f-4fe7-9c4a-c2c00f76188f" width =700 height=auto>
 </p>
 
+Technology: C# | ImGui | OpenTK
 
 # DearImGui
 
