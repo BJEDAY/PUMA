@@ -1,4 +1,4 @@
-The application visualizes movement of robot consisting of 5 arms with 6 degrees of freedom for
+The application visualizes movement of robot consisting of 4 arms with 6 degrees of freedom for
 given initial and final configuration. The method is based on solving the inverse kinematics problem
 using the geometric method. In case of encountering singular point the application chooses solution
 closest to that from previous frame, thus maintaining continuity.
